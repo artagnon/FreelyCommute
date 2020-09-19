@@ -39,5 +39,6 @@ namespace fc::rM
 
   public:
     Parser(std::ifstream &S);
+    inline operator Page() const { return Root; }
   };
 } // namespace fc::rM

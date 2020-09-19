@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <ostream>
 
 namespace fc::rM
 {
@@ -31,6 +32,10 @@ namespace fc::rM
     i32 BrushBaseSize;
   };
 
-  using Layer = AttachChildren<Line>;
-  using Page = AttachChildren<Layer>;
+  struct Layer : public AttachChildren<Line>
+  {
+  };
+  struct Page : public AttachChildren<Layer>
+  {
+  };
 } // namespace fc::rM

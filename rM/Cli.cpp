@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include "Parser.hpp"
+#include "Printer.hpp"
 
 using namespace fc::rM;
 
@@ -14,7 +15,8 @@ int main(int argc, char *argv[])
   }
   std::ifstream Stream(argv[1], std::ios::binary);
   util::assert(Stream.is_open(), "Unable to open input file");
-  Parser{Stream};
+  Page R = std::move(Parser{Stream});
+  std::cout << R << std::endl;
   Stream.close();
   return EXIT_SUCCESS;
 }

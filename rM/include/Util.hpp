@@ -22,14 +22,14 @@ namespace fc::rM::util
   void assert(bool Condition, std::string Msg);
 
   // little endian helpers
-  constexpr i64 to_le(i64 Read)
+  constexpr i64 le_extract(i64 Read)
   {
-    return (Read & 0xff00) | (Read & 0x00ff);
+    return (Read >> 8) | (Read << 8);
   }
 
-  constexpr std::pair<i32, i32> to_le_pair(i64 Read)
+  constexpr std::pair<i32, i32> le_pair(i64 Read)
   {
-    return std::make_pair(static_cast<i32>(Read & 0x00ff), static_cast<i32>(Read & 0xff00 >> sizeof(i32)));
+    return std::make_pair(static_cast<i32>(Read & 0x00ff), static_cast<i32>(Read & 0xff00 >> 8));
   }
 
   // iteration helpers
