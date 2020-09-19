@@ -6,11 +6,12 @@
 
 namespace fc::rM
 {
-  Parser::Parser(std::ifstream &Stream)
+  Parser::Parser(std::ifstream &S) : Stream(S), Root(std::move(MiniParser<Page>{Stream}))
   {
-    utility::for_each(PageTable, [](auto E) {});
-    utility::for_each(LayerTable, [](auto E) {});
-    utility::for_each(LineTable, [](auto E) {});
-    utility::for_each(PointTable, [](auto E) {});
+    auto &Layers = fillChildren<Page, Layer>(Root);
+    utility::for_each(Layers, [](auto E) {
+      auto &Lines = fillChildren<Layer, Line>(E);
+      utility::for_each(Lines, [](auto E) { fillChildren<Line, Point>(E) });
+    });
   }
 } // namespace fc::rM

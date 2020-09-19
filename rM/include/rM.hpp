@@ -116,19 +116,25 @@ namespace fc::rM
     T Populated;
     operator T()
     {
-      std::for_each(Table.begin(), Table.end(), [](auto E) { Populated.E = Stream.get(); });
+      utility::for_each(Table, [](auto E) { Populated.E = Stream.get(); });
       return Populated;
     }
   };
 
-  template <typename T>
-  struct Parser
+  class Parser
   {
+    Page Root;
     std::ifstream &Stream;
-    Parser(std::ifstream &S) : Stream(S) {}
-    T Populated = MiniParser{Stream}();
-    for (auto i = 0; i < Populated.NChildren; ++i)
+
+    template <typename Base, typename Derived>
+    std::vector<Derived> fillChildren(Base B)
     {
+      auto &Children = B.Children;
+      utility::repeat(B.NChildren, [&]() { Children.emplace_back(MiniParser<Derived>{Stream}); });
+      return Children;
     }
+
+  public:
+    Parser(std::ifstream &S);
   };
 } // namespace fc::rM
