@@ -7,7 +7,8 @@ set(CMAKE_BUILD_TYPE Debug)
 include_directories("${PROJECT_SOURCE_DIR}/include")
 
 add_executable(CLI
-  "${CMAKE_CURRENT_SOURCE_DIR}/rM.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/ParseTable.cpp"
+  "${CMAKE_CURRENT_SOURCE_DIR}/Parser.cpp"
   "${CMAKE_CURRENT_SOURCE_DIR}/Cli.cpp")
 
 set_target_properties(CLI PROPERTIES
