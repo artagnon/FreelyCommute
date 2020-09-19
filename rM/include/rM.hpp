@@ -5,7 +5,6 @@
 #include <new>
 #include <fstream>
 #include <variant>
-#include <initializer_list>
 
 /* Format spec:
 
@@ -68,10 +67,10 @@ namespace fc::rM
     PointPressure
   };
 
-  using PrimitiveEntry = std::variant<i32, HdrE, std::nullptr_t>;
+  using PrimitiveEntry = std::variant<i32, HdrE>;
   using E2 = std::array<PrimitiveEntry, 2>;
   using TableEntry = std::variant<i64, E2, std::nullptr_t>;
-  constexpr std::nullptr_t Ghost = 0;
+  constexpr std::nullptr_t Ghost = nullptr;
 
   constexpr std::array<TableEntry, 16> SigTable = {
       0x3520, 0x2020, 0x2020, 0x2020, 0x2020, 0x2001, 0x0000, 0x0000, 0x3520, 0x2020, 0x2020, 0x2020, 0x2020, E2{0x20, HdrE::NLayers}, 0x0000, E2{0x00, HdrE::NLines}};
