@@ -6,6 +6,8 @@
 #include <variant>
 #include <vector>
 
+#include "Utility.hpp"
+
 /* Format spec:
 
 00000000: 7265 4d61 726b 6162 6c65 202e 6c69 6e65  reMarkable .line
@@ -58,16 +60,6 @@ namespace fc::rM
     std::vector<T> Children;
   };
 
-  using Page = AttachChildren<Layer>;
-  using Layer = AttachChildren<Line>;
-
-  struct Line : public AttachChildren<Point>
-  {
-    i32 BrushColor;
-    i32 BrushType;
-    i32 BrushBaseSize;
-  };
-
   struct Point : public AttachChildren<std::nullptr_t>
   {
     i32 X;
@@ -77,6 +69,16 @@ namespace fc::rM
     i32 Width;
     i32 Pressure;
   };
+
+  struct Line : public AttachChildren<Point>
+  {
+    i32 BrushColor;
+    i32 BrushType;
+    i32 BrushBaseSize;
+  };
+
+  using Layer = AttachChildren<Line>;
+  using Page = AttachChildren<Layer>;
 
   template <typename T>
   class TableEntry
@@ -89,6 +91,28 @@ namespace fc::rM
     constexpr TableEntry(int Fst, T Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
     constexpr TableEntry(T Fst, T Snd) : Raw(std::make_pair(Fst, Snd)) {}
     constexpr TableEntry(std::nullptr_t) {}
+    void operator=(i64 DByte)
+    {
+      if (std::holds_alternative<std::pair<PE, PE>>(Raw))
+      {
+        auto &[RawFst, RawSnd] = Raw;
+        assertOrAssign(RawFst, DByte % 0x100);
+        assertOrAssign(RawSnd, DByte / 0x100);
+      }
+      else
+        assertOrAssign(Raw, DByte);
+    }
+
+    template <typename P, typename Q>
+    void assertAssign(P &Raw, Q Byte)
+    {
+      if (std::is_same_v<P, Q>)
+      {
+        assert(Raw == Byte);
+        return;
+      }
+      Raw = Byte;
+    }
   };
 
   constexpr std::nullptr_t Ghost = nullptr;
@@ -106,17 +130,17 @@ namespace fc::rM
       {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};
 
   template <typename T>
-  using TableEntryTy = TableEntry<i32 T::*>;
-
-  template <typename T>
   struct MiniParser
   {
+    using TableTy = TableEntry<i32 T::*>;
+
     std::ifstream &Stream;
-    MiniParser(std::ifstream &S) : Stream(S) {}
+    TableTy<T> &ParseTable;
+    MiniParser(std::ifstream &S, TableTy<T> &Table) : Stream(S), ParseTable(Table) {}
     T Populated;
     operator T()
     {
-      utility::for_each(Table, [](auto E) { Populated.E = Stream.get(); });
+      utility::for_each(Table, [&](auto E) { uint16_t S; Stream.read(reinterpret_cast<char*>(S), sizeof(S)); (Populated.*E) = S; });
       return Populated;
     }
   };
@@ -126,12 +150,11 @@ namespace fc::rM
     Page Root;
     std::ifstream &Stream;
 
-    template <typename Base, typename Derived>
-    std::vector<Derived> fillChildren(Base B)
+    template <typename ParentTy, typename ChildTy>
+    std::vector<ChildTy> fillChildren(ParentTy &B)
     {
-      auto &Children = B.Children;
-      utility::repeat(B.NChildren, [&]() { Children.emplace_back(MiniParser<Derived>{Stream}); });
-      return Children;
+      utility::repeat(B.NChildren, [&]() { B.Children.emplace_back(MiniParser<ChildTy>{Stream}); });
+      return B.Children;
     }
 
   public:
