@@ -53,11 +53,11 @@ namespace fc::rM
   using i32 = uint8_t;
   using i64 = uint16_t;
 
-  template <typename T>
+  template <typename F>
   struct AttachChildren
   {
     i32 NChildren;
-    std::vector<T> Children;
+    std::vector<F> Children;
   };
 
   struct Point : public AttachChildren<std::nullptr_t>
@@ -80,38 +80,42 @@ namespace fc::rM
   using Layer = AttachChildren<Line>;
   using Page = AttachChildren<Layer>;
 
-  template <typename T>
+  template <typename Record>
   class TableEntry
   {
-    using PE = std::variant<i32, T>;
+    using F = i32 Record::*; // Field accessor
+    using PE = std::variant<i32, F>;
     std::variant<i64, std::pair<PE, PE>> Raw;
 
   public:
     constexpr TableEntry(int V) : Raw(static_cast<i64>(V)) {}
-    constexpr TableEntry(int Fst, T Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
-    constexpr TableEntry(T Fst, T Snd) : Raw(std::make_pair(Fst, Snd)) {}
+    constexpr TableEntry(int Fst, F Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
+    constexpr TableEntry(F Fst, F Snd) : Raw(std::make_pair(Fst, Snd)) {}
     constexpr TableEntry(std::nullptr_t) {}
-    void operator=(i64 DByte)
+
+    template <typename PtrOrSz, typename Sz>
+    void assertOrAssign(Record R, PtrOrSz &FieldOrConstant, Sz Bytes)
+    {
+      if (std::is_same_v<PtrOrSz, Sz>)
+      {
+        assert(FieldOrConstant == Bytes);
+        return;
+      }
+      static_assert(std::is_same_v<PtrOrSz, F>);
+      auto FieldPtr = FieldOrConstant;
+      R.*Field = Bytes;
+    }
+
+    void assertOrAssign(Record R, i64 DByte)
     {
       if (std::holds_alternative<std::pair<PE, PE>>(Raw))
       {
         auto &[RawFst, RawSnd] = Raw;
-        assertOrAssign(RawFst, DByte % 0x100);
-        assertOrAssign(RawSnd, DByte / 0x100);
-      }
-      else
-        assertOrAssign(Raw, DByte);
-    }
-
-    template <typename P, typename Q>
-    void assertAssign(P &Raw, Q Byte)
-    {
-      if (std::is_same_v<P, Q>)
-      {
-        assert(Raw == Byte);
+        assertOrAssign(R, RawFst, DByte % 0x100);
+        assertOrAssign(R, RawSnd, DByte / 0x100);
         return;
       }
-      Raw = Byte;
+      assertOrAssign(R, Raw, DByte);
     }
   };
 
@@ -119,29 +123,46 @@ namespace fc::rM
 
   // Unfortunately std::array is not mature enough to be used for nested aggregate initialization
 
-  constexpr TableEntry<i32 Page::*> PageTable[] = {
+  constexpr TableEntry<i32 Page::*> PageTable[15] = {
       0x3520, 0x2020, 0x2020, 0x2020, 0x2020, 0x2001, 0x0000, 0x0000, 0x3520, 0x2020, 0x2020, 0x2020, 0x2020, {0x20, &Page::NChildren}, 0x0000};
 
-  constexpr TableEntry<i32 Layer::*> LayerTable[] = {{0x00, &Layer::NChildren}};
+  constexpr TableEntry<i32 Layer::*> LayerTable[1] = {{0x00, &Layer::NChildren}};
 
-  constexpr TableEntry<i32 Line::*> LineTable[] = {Ghost, {0x00, &Line::BrushType}, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, {0x00, &Line::NChildren}};
+  constexpr TableEntry<i32 Line::*> LineTable[14] = {Ghost, {0x00, &Line::BrushType}, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, {0x00, &Line::NChildren}};
 
-  constexpr TableEntry<i32 Point::*> PointTable[] = {
+  constexpr TableEntry<i32 Point::*> PointTable[4] = {
       {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};
 
-  template <typename T>
+  namespace tablemap
+  {
+    template <typename F>
+    std::pair<TableEntry<i32 F::*> *, size_t> M;
+    template <>
+    auto M<Page> = PageTable;
+    template <>
+    auto M<Layer> = LayerTable;
+    template <>
+    auto M<Line> = LineTable;
+    template <>
+    auto M<Point> = PointTable;
+  } // namespace tablemap
+
+  template <typename F>
   struct MiniParser
   {
-    using TableTy = TableEntry<i32 T::*>;
-
     std::ifstream &Stream;
-    TableTy<T> &ParseTable;
-    MiniParser(std::ifstream &S, TableTy<T> &Table) : Stream(S), ParseTable(Table) {}
-    T Populated;
-    operator T()
+    MiniParser(std::ifstream &S) : Stream(S) {}
+    F Record;
+    operator F()
     {
-      utility::for_each(Table, [&](auto E) { uint16_t S; Stream.read(reinterpret_cast<char*>(S), sizeof(S)); (Populated.*E) = S; });
-      return Populated;
+      auto [M, Sz] = tablemap::M<F>;
+      for (int i = 0; i < Sz; ++i)
+      {
+        uint16_t S;
+        Stream.read(reinterpret_cast<char *>(S), sizeof(S));
+        M[i].assertOrAssign(Record, S);
+      }
+      return Record;
     }
   };
 
