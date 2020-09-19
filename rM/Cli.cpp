@@ -2,14 +2,12 @@
 
 #include "rM.hpp"
 
-namespace fc::rM
+using namespace fc::rM;
+
+int main()
 {
-  int main(int argc, const char *argv[])
-  {
-    Parser <
-        std::ifstream Stream("blank.rm", std::ios::binary);
-    Parser{Stream};
-    Stream.close();
-    return EXIT_SUCCESS;
-  }
-} // namespace fc::rM
+  std::ifstream Stream("blank.rm", std::ios::binary);
+  Parser{Stream};
+  Stream.close();
+  return EXIT_SUCCESS;
+}

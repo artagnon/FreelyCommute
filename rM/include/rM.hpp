@@ -5,6 +5,7 @@
 #include <fstream>
 #include <variant>
 #include <vector>
+#include <cassert>
 
 #include "Utility.hpp"
 
@@ -53,11 +54,11 @@ namespace fc::rM
   using i32 = uint8_t;
   using i64 = uint16_t;
 
-  template <typename F>
+  template <typename T>
   struct AttachChildren
   {
     i32 NChildren;
-    std::vector<F> Children;
+    std::vector<T> Children;
   };
 
   struct Point : public AttachChildren<std::nullptr_t>
@@ -80,42 +81,41 @@ namespace fc::rM
   using Layer = AttachChildren<Line>;
   using Page = AttachChildren<Layer>;
 
-  template <typename Record>
+  template <typename T>
   class TableEntry
   {
-    using F = i32 Record::*; // Field accessor
-    using PE = std::variant<i32, F>;
+    using PE = std::variant<i32, T>;
     std::variant<i64, std::pair<PE, PE>> Raw;
 
   public:
     constexpr TableEntry(int V) : Raw(static_cast<i64>(V)) {}
-    constexpr TableEntry(int Fst, F Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
-    constexpr TableEntry(F Fst, F Snd) : Raw(std::make_pair(Fst, Snd)) {}
+    constexpr TableEntry(int Fst, T Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
+    constexpr TableEntry(T Fst, T Snd) : Raw(std::make_pair(Fst, Snd)) {}
     constexpr TableEntry(std::nullptr_t) {}
 
-    template <typename PtrOrSz, typename Sz>
-    void assertOrAssign(Record R, PtrOrSz &FieldOrConstant, Sz Bytes)
+    template <typename Record, typename Sz>
+    void assertOrAssign(Record &R, const PE &P, Sz Bytes) const
     {
-      if (std::is_same_v<PtrOrSz, Sz>)
+      if (std::holds_alternative<T>(P))
       {
-        assert(FieldOrConstant == Bytes);
+        auto Field = std::get<T>(P);
+        R.*Field = Bytes;
         return;
       }
-      static_assert(std::is_same_v<PtrOrSz, F>);
-      auto FieldPtr = FieldOrConstant;
-      R.*Field = Bytes;
+      assert(std::get<i32>(P) == Bytes);
     }
 
-    void assertOrAssign(Record R, i64 DByte)
+    template <typename Record>
+    void assertOrAssign(Record &R, i64 DByte) const
     {
       if (std::holds_alternative<std::pair<PE, PE>>(Raw))
       {
-        auto &[RawFst, RawSnd] = Raw;
+        auto &[RawFst, RawSnd] = std::get<std::pair<PE, PE>>(Raw);
         assertOrAssign(R, RawFst, DByte % 0x100);
         assertOrAssign(R, RawSnd, DByte / 0x100);
         return;
       }
-      assertOrAssign(R, Raw, DByte);
+      assert(std::get<i64>(Raw) == DByte);
     }
   };
 
@@ -130,35 +130,27 @@ namespace fc::rM
 
   constexpr TableEntry<i32 Line::*> LineTable[14] = {Ghost, {0x00, &Line::BrushType}, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, {0x00, &Line::NChildren}};
 
-  constexpr TableEntry<i32 Point::*> PointTable[4] = {
+  constexpr TableEntry<i32 Point::*> PointTable[3] = {
       {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};
 
   namespace tablemap
   {
-    template <typename F>
-    std::pair<TableEntry<i32 F::*> *, size_t> M;
-    template <>
-    auto M<Page> = PageTable;
-    template <>
-    auto M<Layer> = LayerTable;
-    template <>
-    auto M<Line> = LineTable;
-    template <>
-    auto M<Point> = PointTable;
+    template <typename T>
+    std::pair<TableEntry<i32 T::*> *, size_t> M;
   } // namespace tablemap
 
-  template <typename F>
+  template <typename T>
   struct MiniParser
   {
     std::ifstream &Stream;
     MiniParser(std::ifstream &S) : Stream(S) {}
-    F Record;
-    operator F()
+    T Record;
+    operator T()
     {
-      auto [M, Sz] = tablemap::M<F>;
+      auto [M, Sz] = tablemap::M<T>;
       for (int i = 0; i < Sz; ++i)
       {
-        uint16_t S;
+        i64 S = 0;
         Stream.read(reinterpret_cast<char *>(S), sizeof(S));
         M[i].assertOrAssign(Record, S);
       }
@@ -168,14 +160,13 @@ namespace fc::rM
 
   class Parser
   {
-    Page Root;
     std::ifstream &Stream;
+    Page Root;
 
     template <typename ParentTy, typename ChildTy>
-    std::vector<ChildTy> fillChildren(ParentTy &B)
+    void fillChildren(ParentTy &B)
     {
       utility::repeat(B.NChildren, [&]() { B.Children.emplace_back(MiniParser<ChildTy>{Stream}); });
-      return B.Children;
     }
 
   public:
