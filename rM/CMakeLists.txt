@@ -11,6 +11,6 @@ add_executable(CLI
   "${CMAKE_CURRENT_SOURCE_DIR}/Cli.cpp")
 
 set_target_properties(CLI PROPERTIES
-  OUTPUT_NAME "rM-dump"
+  OUTPUT_NAME "fc-rM"
   CXX_STANDARD 20
   LINKER_LANGUAGE CXX)

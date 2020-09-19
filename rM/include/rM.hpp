@@ -4,10 +4,10 @@
 #include <new>
 #include <fstream>
 #include <variant>
-#include <vector>
 #include <cassert>
 
 #include "Utility.hpp"
+#include "ParseTable.hpp"
 
 /* Format spec:
 
@@ -51,54 +51,24 @@
 
 namespace fc::rM
 {
-  using i32 = uint8_t;
-  using i64 = uint16_t;
-
-  template <typename T>
-  struct AttachChildren
-  {
-    i32 NChildren;
-    std::vector<T> Children;
-  };
-
-  struct Point : public AttachChildren<std::nullptr_t>
-  {
-    i32 X;
-    i32 Y;
-    i32 Speed;
-    i32 Direction;
-    i32 Width;
-    i32 Pressure;
-  };
-
-  struct Line : public AttachChildren<Point>
-  {
-    i32 BrushColor;
-    i32 BrushType;
-    i32 BrushBaseSize;
-  };
-
-  using Layer = AttachChildren<Line>;
-  using Page = AttachChildren<Layer>;
-
-  template <typename T>
+  template <typename FieldPtr>
   class TableEntry
   {
-    using PE = std::variant<i32, T>;
+    using PE = std::variant<i32, FieldPtr>;
     std::variant<i64, std::pair<PE, PE>> Raw;
 
   public:
     constexpr TableEntry(int V) : Raw(static_cast<i64>(V)) {}
-    constexpr TableEntry(int Fst, T Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
-    constexpr TableEntry(T Fst, T Snd) : Raw(std::make_pair(Fst, Snd)) {}
+    constexpr TableEntry(int Fst, FieldPtr Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
+    constexpr TableEntry(FieldPtr Fst, FieldPtr Snd) : Raw(std::make_pair(Fst, Snd)) {}
     constexpr TableEntry(std::nullptr_t) {}
 
     template <typename Record, typename Sz>
     void assertOrAssign(Record &R, const PE &P, Sz Bytes) const
     {
-      if (std::holds_alternative<T>(P))
+      if (std::holds_alternative<FieldPtr>(P))
       {
-        auto Field = std::get<T>(P);
+        auto Field = std::get<FieldPtr>(P);
         R.*Field = Bytes;
         return;
       }
