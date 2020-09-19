@@ -2,15 +2,15 @@
 #include <cassert>
 
 #include "rM.hpp"
+#include "Utility.hpp"
 
 namespace fc::rM
 {
-  Parser::Parser(bytestream &Stream)
+  Parser::Parser(std::ifstream &Stream)
   {
-    i32 Scratch[2];
-    for (auto &&Entry : SigTable)
-    {
-      std::visit([](auto x) {}, Entry);
-    }
+    utility::for_each(PageTable, [](auto E) {});
+    utility::for_each(LayerTable, [](auto E) {});
+    utility::for_each(LineTable, [](auto E) {});
+    utility::for_each(PointTable, [](auto E) {});
   }
 } // namespace fc::rM

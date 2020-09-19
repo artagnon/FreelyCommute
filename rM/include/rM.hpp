@@ -1,10 +1,10 @@
 #pragma once
 
-#include <array>
 #include <utility>
 #include <new>
 #include <fstream>
 #include <variant>
+#include <vector>
 
 /* Format spec:
 
@@ -51,49 +51,84 @@ namespace fc::rM
   using i32 = uint8_t;
   using i64 = uint16_t;
 
-  enum class HdrE
+  template <typename T>
+  struct AttachChildren
   {
-    NLayers,
-    NLines,
-    NPoints,
-    BrushColor,
-    BrushType,
-    BrushBaseSize,
-    PointX,
-    PointY,
-    PointSpeed,
-    PointDirection,
-    PointWidth,
-    PointPressure
+    i32 NChildren;
+    std::vector<T> Children;
   };
 
-  using PrimitiveEntry = std::variant<i32, HdrE>;
-  using E2 = std::array<PrimitiveEntry, 2>;
-  using TableEntry = std::variant<i64, E2, std::nullptr_t>;
-  constexpr std::nullptr_t Ghost = nullptr;
+  using Page = AttachChildren<Layer>;
+  using Layer = AttachChildren<Line>;
 
-  constexpr std::array<TableEntry, 16> SigTable = {
-      0x3520, 0x2020, 0x2020, 0x2020, 0x2020, 0x2001, 0x0000, 0x0000, 0x3520, 0x2020, 0x2020, 0x2020, 0x2020, E2{0x20, HdrE::NLayers}, 0x0000, E2{0x00, HdrE::NLines}};
-
-  constexpr std::array<TableEntry, 14> LineTable = {Ghost, E2{0x00, HdrE::BrushType}, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, E2{0x00, HdrE::NPoints}};
-
-  constexpr std::array<TableEntry, 3> PointTable = {
-      E2{HdrE::PointX, HdrE::PointY}, E2{HdrE::PointSpeed, HdrE::PointDirection}, E2{HdrE::PointWidth, HdrE::PointPressure}};
-
-  using bytestream = std::basic_ifstream<i32>;
-
-  class ParseData
+  struct Line : public AttachChildren<Point>
   {
-    unsigned int NLayers;
-    unsigned int NLines;
+    i32 BrushColor;
+    i32 BrushType;
+    i32 BrushBaseSize;
   };
 
-  class Parser
+  struct Point : public AttachChildren<std::nullptr_t>
   {
-    ParseData Data;
+    i32 X;
+    i32 Y;
+    i32 Speed;
+    i32 Direction;
+    i32 Width;
+    i32 Pressure;
+  };
+
+  template <typename T>
+  class TableEntry
+  {
+    using PE = std::variant<i32, T>;
+    std::variant<i64, std::pair<PE, PE>> Raw;
 
   public:
-    Parser(bytestream &Stream);
-    operator std::string();
+    constexpr TableEntry(int V) : Raw(static_cast<i64>(V)) {}
+    constexpr TableEntry(int Fst, T Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
+    constexpr TableEntry(T Fst, T Snd) : Raw(std::make_pair(Fst, Snd)) {}
+    constexpr TableEntry(std::nullptr_t) {}
+  };
+
+  constexpr std::nullptr_t Ghost = nullptr;
+
+  // Unfortunately std::array is not mature enough to be used for nested aggregate initialization
+
+  constexpr TableEntry<i32 Page::*> PageTable[] = {
+      0x3520, 0x2020, 0x2020, 0x2020, 0x2020, 0x2001, 0x0000, 0x0000, 0x3520, 0x2020, 0x2020, 0x2020, 0x2020, {0x20, &Page::NChildren}, 0x0000};
+
+  constexpr TableEntry<i32 Layer::*> LayerTable[] = {{0x00, &Layer::NChildren}};
+
+  constexpr TableEntry<i32 Line::*> LineTable[] = {Ghost, {0x00, &Line::BrushType}, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, {0x00, &Line::NChildren}};
+
+  constexpr TableEntry<i32 Point::*> PointTable[] = {
+      {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};
+
+  template <typename T>
+  using TableEntryTy = TableEntry<i32 T::*>;
+
+  template <typename T>
+  struct MiniParser
+  {
+    std::ifstream &Stream;
+    MiniParser(std::ifstream &S) : Stream(S) {}
+    T Populated;
+    operator T()
+    {
+      std::for_each(Table.begin(), Table.end(), [](auto E) { Populated.E = Stream.get(); });
+      return Populated;
+    }
+  };
+
+  template <typename T>
+  struct Parser
+  {
+    std::ifstream &Stream;
+    Parser(std::ifstream &S) : Stream(S) {}
+    T Populated = MiniParser{Stream}();
+    for (auto i = 0; i < Populated.NChildren; ++i)
+    {
+    }
   };
 } // namespace fc::rM

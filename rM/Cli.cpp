@@ -6,7 +6,7 @@ namespace fc::rM
 {
   int main(int argc, const char *argv[])
   {
-    bytestream Stream("blank.rm");
+    std::ifstream Stream("blank.rm", std::ios::binary);
     Parser{Stream};
     Stream.close();
     return EXIT_SUCCESS;
