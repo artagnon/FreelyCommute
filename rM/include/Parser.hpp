@@ -19,7 +19,7 @@ namespace fc::rM
       for (size_t i = 0; i < Sz; ++i)
       {
         i64 S = 0;
-        Stream.read(reinterpret_cast<char *>(S), sizeof(S));
+        Stream.read(reinterpret_cast<char *>(&S), sizeof(S));
         M[i].assertOrAssign(Record, S);
       }
       return Record;
@@ -34,7 +34,7 @@ namespace fc::rM
     template <typename ParentTy, typename ChildTy>
     void fillChildren(ParentTy &B)
     {
-      utility::repeat(B.NChildren, [&]() { B.Children.emplace_back(MiniParser<ChildTy>{Stream}); });
+      util::repeat(B.NChildren, [&]() { B.Children.emplace_back(MiniParser<ChildTy>{Stream}); });
     }
 
   public:

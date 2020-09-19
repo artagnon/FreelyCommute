@@ -5,7 +5,7 @@
 namespace fc::rM::tablemap
 {
   template <>
-  auto M<Page> = std::make_pair(PageTable, 15);
+  auto M<Page> = std::make_pair(PageTable, 31);
   template <>
   auto M<Layer> = std::make_pair(LayerTable, 1);
   template <>
