@@ -53,13 +53,13 @@ namespace fc::rM
   class TableEntry
   {
     using PE = std::variant<i32, FieldPtr>;
-    std::variant<i64, std::pair<PE, PE>> Raw;
+    std::variant<i64, std::pair<PE, PE>, std::nullptr_t> Raw;
 
   public:
     constexpr TableEntry(int V) : Raw(static_cast<i64>(V)) {}
     constexpr TableEntry(int Fst, FieldPtr Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
     constexpr TableEntry(FieldPtr Fst, FieldPtr Snd) : Raw(std::make_pair(Fst, Snd)) {}
-    constexpr TableEntry(std::nullptr_t) {}
+    constexpr TableEntry(std::nullptr_t) : Raw(nullptr) {}
 
     template <typename Record, typename Sz>
     void assertOrAssign(Record &R, const PE &P, Sz Bytes) const
@@ -76,6 +76,8 @@ namespace fc::rM
     template <typename Record>
     void assertOrAssign(Record &R, i64 DByte) const
     {
+      if (std::holds_alternative<std::nullptr_t>(Raw))
+        return;
       if (std::holds_alternative<std::pair<PE, PE>>(Raw))
       {
         auto &[RawFst, RawSnd] = std::get<std::pair<PE, PE>>(Raw);
@@ -89,14 +91,14 @@ namespace fc::rM
     }
   };
 
-  constexpr std::nullptr_t Ghost = nullptr;
+  constexpr std::nullptr_t Skip = nullptr;
 
   constexpr TableEntry<i32 Page::*> PageTable[23] = {
       0x7265, 0x4d61, 0x726b, 0x6162, 0x6c65, 0x202e, 0x6c69, 0x6e65, 0x7320, 0x6669, 0x6c65, 0x2c20, 0x7665, 0x7273, 0x696f, 0x6e3d, 0x3520, 0x2020, 0x2020, 0x2020, 0x2020, {0x20, &Page::NChildren}, 0x0000};
 
   constexpr TableEntry<i32 Layer::*> LayerTable[1] = {{0x00, &Layer::NChildren}};
 
-  constexpr TableEntry<i32 Line::*> LineTable[14] = {Ghost, {0x00, &Line::BrushType}, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, Ghost, {0x00, &Line::NChildren}};
+  constexpr TableEntry<i32 Line::*> LineTable[14] = {Skip, {0x00, &Line::BrushType}, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, {0x00, &Line::NChildren}};
 
   constexpr TableEntry<i32 Point::*> PointTable[3] = {
       {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};

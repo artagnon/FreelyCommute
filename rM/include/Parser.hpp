@@ -34,7 +34,10 @@ namespace fc::rM
     template <typename ParentTy, typename ChildTy>
     void fillChildren(ParentTy &B)
     {
-      util::repeat(B.NChildren, [&]() { B.Children.emplace_back(MiniParser<ChildTy>{Stream}); });
+      for (i32 i = 0; i < B.NChildren; ++i)
+      {
+        B.Children.push_back(MiniParser<ChildTy>{Stream});
+      }
     }
 
   public:
