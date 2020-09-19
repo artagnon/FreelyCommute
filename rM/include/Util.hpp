@@ -14,8 +14,8 @@ namespace fc::rM::util
   {
     if (Actual != Expected)
     {
-      std::cout << "Expected: " << std::hex << std::showbase << Expected << std::endl;
-      std::cout << "Actual: " << std::hex << std::showbase << Actual << std::endl;
+      std::cout << "Expected: " << std::hex << std::showbase << +Expected << std::endl;
+      std::cout << "Actual: " << std::hex << std::showbase << +Actual << std::endl;
       std::abort();
     }
   }
@@ -29,7 +29,7 @@ namespace fc::rM::util
 
   constexpr std::pair<i32, i32> le_pair(i64 Read)
   {
-    return std::make_pair(static_cast<i32>(Read & 0x00ff), static_cast<i32>(Read & 0xff00 >> 8));
+    return std::make_pair(Read, Read >> 8);
   }
 
   // iteration helpers

@@ -15,8 +15,7 @@ int main(int argc, char *argv[])
   }
   std::ifstream Stream(argv[1], std::ios::binary);
   util::assert(Stream.is_open(), "Unable to open input file");
-  Page R = std::move(Parser{Stream});
-  std::cout << R << std::endl;
+  std::cout << Parser{Stream} << std::endl;
   Stream.close();
   return EXIT_SUCCESS;
 }
