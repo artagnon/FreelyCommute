@@ -1,22 +1,22 @@
 ident = _{ id | "{" ~ id ~ "}" }
-  id = @{ (idprim | mathbb | greek | special) }
+  id = @{ (idprim | mathbb | greek | bullet | exists | special) }
     idprim = _{ (alpha | digit)+ }
       alpha = _{ 'a'..'z' | 'A'..'Z' }
       digit = _{ '0'..'9' }
     mathbb = @{ "\\mathbb{" ~ id ~ "}" }
     greek = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" }
+  bullet = @{ "\\bullet" }
+  exists = @{ ("\\exists" | "\\exists!") }
+  special = @{ "\\circ" | "\\times" | "\\langle" | "\\rangle" }
 
 suborsuper = _{ superscr | subscr }
   superscr = @{ "^" }
   subscr = @{ "_" }
 
-node = _{ ident+ ~ (suborsuper ~ ident+)* | bullet | exists }
-  bullet = @{ "\\bullet" }
-  exists = @{ ("\\exists" | "\\exists!") ~ ident }
-  special = @{ "\\circ" | "\\times" | "\\langle" | "\\rangle" | "," }
+node = _{ ident+ ~ (suborsuper ~ ident+)* }
 
-arrow = _{ ar ~ (suborsuper ~ label_shift? ~ node)+ }
-  ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ "{" ~ ar_style? ~ "}")? ~ ar_directions ~ label_mid? ~ suborsuper ~ node }
+arrow = _{ ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
+  ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ "{" ~ ar_style? ~ "}")? ~ ar_directions }
     ar_style = @{ "=>" | ".>" | ":>" | "~>" | "-->" | "-" }
     ar_directions = @{ ("[" ~ ("l"|"r"|"u"|"d")+ ~ "]")+ }
     ar_curvature = @{ "/" ~ suborsuper ~ "/" }
