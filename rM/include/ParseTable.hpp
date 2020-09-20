@@ -52,18 +52,21 @@ namespace fc::rM
   template <typename FieldPtr>
   class TableEntry
   {
-    using PE = std::variant<i32, FieldPtr>;
+    using PE = std::variant<i32, FieldPtr, std::nullptr_t>;
     std::variant<i64, std::pair<PE, PE>, std::nullptr_t> Raw;
 
   public:
     constexpr TableEntry(int V) : Raw(static_cast<i64>(V)) {}
     constexpr TableEntry(int Fst, FieldPtr Snd) : Raw(std::make_pair(static_cast<i32>(Fst), Snd)) {}
+    constexpr TableEntry(std::nullptr_t, FieldPtr Snd) : Raw(std::make_pair(nullptr, Snd)) {}
     constexpr TableEntry(FieldPtr Fst, FieldPtr Snd) : Raw(std::make_pair(Fst, Snd)) {}
     constexpr TableEntry(std::nullptr_t) : Raw(nullptr) {}
 
     template <typename Record, typename Sz>
     void assertOrAssign(Record &R, const PE &P, Sz Bytes) const
     {
+      if (std::holds_alternative<std::nullptr_t>(P))
+        return;
       if (std::holds_alternative<FieldPtr>(P))
       {
         auto Field = std::get<FieldPtr>(P);
@@ -98,7 +101,7 @@ namespace fc::rM
 
   constexpr TableEntry<i32 Layer::*> LayerTable[1] = {{0x00, &Layer::NChildren}};
 
-  constexpr TableEntry<i32 Line::*> LineTable[14] = {Skip, {0x00, &Line::BrushType}, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, {0x00, &Line::NChildren}};
+  constexpr TableEntry<i32 Line::*> LineTable[14] = {Skip, {Skip, &Line::BrushType}, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, {Skip, &Line::NChildren}};
 
   constexpr TableEntry<i32 Point::*> PointTable[3] = {
       {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};
