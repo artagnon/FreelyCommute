@@ -1,5 +1,2 @@
 build/
 .vscode/
-*.py
-*.ipynb
-data/
