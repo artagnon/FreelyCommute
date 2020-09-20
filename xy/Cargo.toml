@@ -1,0 +1,8 @@
+[package]
+name = "fc-xy"
+version = "0.0.1"
+authors = ["artagnon@gmail.com"]
+
+[dependencies]
+pest = "2.1.3"
+pest_derive = "2.1.0"

@@ -1,0 +1,21 @@
+ident = { ident1+ }
+  ident1 = _{ (alpha | digit) }
+    alpha = { 'a'..'z' | 'A'..'Z' }
+    digit = { '0'..'9' }
+
+braced_ident = _{ "{" ~ ident ~ "}" }
+
+node = { ident ~ ((superscript|subscript) ~ ident)* }
+  superscript = { "^" }
+  subscript = { "_" }
+
+line = _{ amp* ~ (ident ~ amp*)* }
+  amp = _{ "&" }
+
+linenl = _{line ~ nl}
+lastline = _{line ~ nlmaybe}
+main = _{ SOI ~ linenl* ~ lastline ~ EOI }
+  nl = _{ "\\\\" ~ NEWLINE }
+  nlmaybe = _{"\\\\"? ~ NEWLINE}
+
+WHITESPACE = _{ " " | "\t" }
