@@ -1,16 +1,10 @@
-cmake_minimum_required(VERSION 3.18.2)
-project(rM)
-
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++20 -fdiagnostics-color=always")
-set(CMAKE_BUILD_TYPE Debug)
-
-include_directories("${PROJECT_SOURCE_DIR}/include")
+include_directories(include)
 
 add_executable(CLI
-  "${CMAKE_CURRENT_SOURCE_DIR}/Util.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/ParseTable.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Parser.cpp"
-  "${CMAKE_CURRENT_SOURCE_DIR}/Cli.cpp")
+  Util.cpp
+  ParseTable.cpp
+  Parser.cpp
+  Cli.cpp)
 
 set_target_properties(CLI PROPERTIES
   OUTPUT_NAME "fc-rM"
