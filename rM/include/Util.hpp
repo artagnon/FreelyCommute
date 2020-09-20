@@ -31,14 +31,4 @@ namespace fc::rM::util
   {
     return std::make_pair(Read, Read >> 8);
   }
-
-  // iteration helpers
-  template <typename L>
-  void repeat(int N, L Lambda)
-  {
-    for (auto i = 0; i < N; ++i)
-      static_cast<void>(Lambda);
-  }
-  template <typename I, typename L>
-  constexpr void for_each(I Iterable, L Lambda) { std::for_each(Iterable.begin(), Iterable.end(), Lambda); }
 } // namespace fc::rM::util

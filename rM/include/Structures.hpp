@@ -11,7 +11,7 @@ namespace fc::rM
   template <typename T>
   struct AttachChildren
   {
-    i32 NChildren;
+    i32 NChildren = 0;
     std::vector<T> Children;
   };
 
