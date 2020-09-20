@@ -22,8 +22,6 @@ fn main() {
 
   for pair in pairs {
     // A pair is a combination of the rule which matched and a span of input
-    println!("Rule:    {:?}", pair.as_rule());
-    println!("Span:    {:?}", pair.as_span());
-    println!("Text:    {}", pair.as_str());
+    println!("{:?} {}", pair.as_rule(), pair.as_str());
   }
 }
