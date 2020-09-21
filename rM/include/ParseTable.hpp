@@ -101,7 +101,7 @@ namespace fc::rM
 
   constexpr TableEntry<i32 Layer::*> LayerTable[] = {{0x00, &Layer::NChildren}};
 
-  constexpr TableEntry<i32 Line::*> LineTable[] = {Skip, {Skip, &Line::BrushType}, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, {Skip, &Line::NChildren}};
+  constexpr TableEntry<i32 Line::*> LineTable[] = {Skip, {Skip, &Line::BrushType}, {&Line::BrushColor, &Line::Padding}, {Skip, &Line::BrushSize}, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, {Skip, &Line::NChildren}};
 
   constexpr TableEntry<i32 Point::*> PointTable[] = {
       {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};
