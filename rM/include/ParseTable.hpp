@@ -96,14 +96,14 @@ namespace fc::rM
 
   constexpr std::nullptr_t Skip = nullptr;
 
-  constexpr TableEntry<i32 Page::*> PageTable[23] = {
+  constexpr TableEntry<i32 Page::*> PageTable[] = {
       0x7265, 0x4d61, 0x726b, 0x6162, 0x6c65, 0x202e, 0x6c69, 0x6e65, 0x7320, 0x6669, 0x6c65, 0x2c20, 0x7665, 0x7273, 0x696f, 0x6e3d, 0x3520, 0x2020, 0x2020, 0x2020, 0x2020, {0x20, &Page::NChildren}, 0x0000};
 
-  constexpr TableEntry<i32 Layer::*> LayerTable[1] = {{0x00, &Layer::NChildren}};
+  constexpr TableEntry<i32 Layer::*> LayerTable[] = {{0x00, &Layer::NChildren}};
 
-  constexpr TableEntry<i32 Line::*> LineTable[14] = {Skip, {Skip, &Line::BrushType}, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, {Skip, &Line::NChildren}};
+  constexpr TableEntry<i32 Line::*> LineTable[] = {Skip, {Skip, &Line::BrushType}, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, Skip, {Skip, &Line::NChildren}};
 
-  constexpr TableEntry<i32 Point::*> PointTable[3] = {
+  constexpr TableEntry<i32 Point::*> PointTable[] = {
       {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};
 } // namespace fc::rM
 
@@ -113,11 +113,11 @@ namespace fc::rM::tablemap
   constexpr std::pair<TableEntry<i32 T::*> *, size_t> M;
 
   template <>
-  constexpr inline auto M<Page> = std::make_pair(PageTable, 23);
+  constexpr inline auto M<Page> = std::make_pair(PageTable, std::extent_v<decltype(PageTable)>);
   template <>
-  constexpr inline auto M<Layer> = std::make_pair(LayerTable, 1);
+  constexpr inline auto M<Layer> = std::make_pair(LayerTable, std::extent_v<decltype(LayerTable)>);
   template <>
-  constexpr inline auto M<Line> = std::make_pair(LineTable, 14);
+  constexpr inline auto M<Line> = std::make_pair(LineTable, std::extent_v<decltype(LineTable)>);
   template <>
-  constexpr inline auto M<Point> = std::make_pair(PointTable, 3);
+  constexpr inline auto M<Point> = std::make_pair(PointTable, std::extent_v<decltype(PointTable)>);
 } // namespace fc::rM::tablemap
