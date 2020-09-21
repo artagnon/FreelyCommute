@@ -63,7 +63,7 @@ namespace fc::rM
     constexpr TableEntry(std::nullptr_t) : Raw(nullptr) {}
 
     template <typename Record, typename Sz>
-    void assertOrAssign(Record &R, const PE &P, Sz Bytes) const
+    constexpr void assertOrAssign(Record &R, const PE &P, Sz Bytes) const
     {
       if (std::holds_alternative<std::nullptr_t>(P))
         return;
@@ -77,7 +77,7 @@ namespace fc::rM
     }
 
     template <typename Record>
-    void assertOrAssign(Record &R, i64 DByte) const
+    constexpr void assertOrAssign(Record &R, i64 DByte) const
     {
       if (std::holds_alternative<std::nullptr_t>(Raw))
         return;

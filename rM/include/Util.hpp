@@ -10,7 +10,7 @@ namespace fc::rM::util
   using i64 = uint16_t;
 
   template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-  void assert_eq(T Expected, T Actual)
+  constexpr void assert_eq(T Expected, T Actual)
   {
     if (Actual != Expected)
     {
