@@ -49,7 +49,7 @@ namespace fc::rM
     };
 
   public:
-    inline Parser(std::ifstream &S) : Stream(S), Root(std::move(miniParser<Page>()))
+    inline Parser(std::ifstream &S) : Stream(S), Root(miniParser<Page>())
     {
       recurseFillChildren<1, Page, Layer, Line, Point>(Root);
     }
