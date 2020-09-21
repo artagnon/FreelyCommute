@@ -9,7 +9,7 @@ namespace fc::rM::util
   using i32 = uint8_t;
   using i64 = uint16_t;
 
-  template <typename T>
+  template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
   void assert_eq(T Expected, T Actual)
   {
     if (Actual != Expected)
@@ -19,7 +19,8 @@ namespace fc::rM::util
       std::abort();
     }
   }
-  inline void assert(bool Condition, std::string Msg)
+
+  constexpr void assert(bool Condition, const char Msg[])
   {
     if (!Condition)
     {
