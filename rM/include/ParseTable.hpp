@@ -110,5 +110,14 @@ namespace fc::rM
 namespace fc::rM::tablemap
 {
   template <typename T>
-  std::pair<TableEntry<i32 T::*> *, size_t> M;
-}
+  inline std::pair<TableEntry<i32 T::*> *, size_t> M;
+
+  template <>
+  inline auto M<Page> = std::make_pair(PageTable, 23);
+  template <>
+  inline auto M<Layer> = std::make_pair(LayerTable, 1);
+  template <>
+  inline auto M<Line> = std::make_pair(LineTable, 14);
+  template <>
+  inline auto M<Point> = std::make_pair(PointTable, 3);
+} // namespace fc::rM::tablemap

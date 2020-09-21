@@ -1,8 +1,6 @@
 include_directories(include)
 
 add_executable(CLI
-  Util.cpp
-  ParseTable.cpp
   Parser.cpp
   Cli.cpp)
 

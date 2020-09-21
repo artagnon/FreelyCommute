@@ -16,7 +16,7 @@ namespace fc::rM
     operator T()
     {
       auto [M, Sz] = tablemap::M<T>;
-      for (size_t i = 0; i < Sz; ++i)
+      for (auto i = 0; i < Sz; ++i)
       {
         i64 S = 0;
         Stream.read(reinterpret_cast<char *>(&S), sizeof(S));

@@ -19,7 +19,14 @@ namespace fc::rM::util
       std::abort();
     }
   }
-  void assert(bool Condition, std::string Msg);
+  inline void assert(bool Condition, std::string Msg)
+  {
+    if (!Condition)
+    {
+      std::cout << Msg << std::endl;
+      std::abort();
+    }
+  }
 
   // little endian helpers
   constexpr i64 le_extract(i64 Read)
