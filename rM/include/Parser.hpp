@@ -16,12 +16,10 @@ namespace fc::rM
     T miniParser()
     {
       T Record;
-      auto [M, Sz] = tablemap::M<T>;
-      for (size_t i = 0; i < Sz; ++i)
-      {
+      for (auto&& elt : tablemap::M<T>) {
         i64 S = 0;
         Stream.read(reinterpret_cast<char *>(&S), sizeof(S));
-        M[i].assertOrAssign(Record, S);
+        elt.assertOrAssign(Record, S);
       }
       return Record;
     };

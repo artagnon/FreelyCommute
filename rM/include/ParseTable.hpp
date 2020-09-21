@@ -110,14 +110,14 @@ namespace fc::rM
 namespace fc::rM::tablemap
 {
   template <typename T>
-  constexpr std::pair<TableEntry<i32 T::*> *, size_t> M;
+  char M = throw;  // you should never use this primary template
 
   template <>
-  constexpr inline auto M<Page> = std::make_pair(PageTable, std::extent_v<decltype(PageTable)>);
+  constexpr inline auto& M<Page> = PageTable;
   template <>
-  constexpr inline auto M<Layer> = std::make_pair(LayerTable, std::extent_v<decltype(LayerTable)>);
+  constexpr inline auto& M<Layer> = LayerTable;
   template <>
-  constexpr inline auto M<Line> = std::make_pair(LineTable, std::extent_v<decltype(LineTable)>);
+  constexpr inline auto& M<Line> = LineTable;
   template <>
-  constexpr inline auto M<Point> = std::make_pair(PointTable, std::extent_v<decltype(PointTable)>);
+  constexpr inline auto& M<Point> = PointTable;
 } // namespace fc::rM::tablemap
