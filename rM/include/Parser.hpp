@@ -7,14 +7,15 @@
 
 namespace fc::rM
 {
-  template <typename T>
-  struct MiniParser
+  class Parser
   {
     std::ifstream &Stream;
-    MiniParser(std::ifstream &S) : Stream(S) {}
-    T Record;
-    operator T()
+    Page Root;
+
+    template <typename T>
+    T miniParser()
     {
+      T Record;
       auto [M, Sz] = tablemap::M<T>;
       for (size_t i = 0; i < Sz; ++i)
       {
@@ -23,20 +24,14 @@ namespace fc::rM
         M[i].assertOrAssign(Record, S);
       }
       return Record;
-    }
-  };
-
-  class Parser
-  {
-    std::ifstream &Stream;
-    Page Root;
+    };
 
     template <typename TyL, typename TyR>
     void fillChildren(TyL &E)
     {
       for (i32 i = 0; i < E.NChildren; ++i)
       {
-        E.Children.push_back(MiniParser<TyR>{Stream});
+        E.Children.push_back(miniParser<TyR>());
       }
     };
 
@@ -54,7 +49,7 @@ namespace fc::rM
     };
 
   public:
-    inline Parser(std::ifstream &S) : Stream(S), Root(std::move(MiniParser<Page>{Stream}))
+    inline Parser(std::ifstream &S) : Stream(S), Root(std::move(miniParser<Page>()))
     {
       recurseFillChildren<1, Page, Layer, Line, Point>(Root);
     }
