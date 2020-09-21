@@ -1,7 +1,6 @@
 include_directories(include)
 
 add_executable(CLI
-  Parser.cpp
   Cli.cpp)
 
 set_target_properties(CLI PROPERTIES
