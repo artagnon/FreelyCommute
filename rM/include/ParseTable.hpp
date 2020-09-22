@@ -53,64 +53,49 @@ namespace fc::rM
   class TableEntry
   {
     using FieldPtr = i32 Record::*;
-    using PE = std::variant<i32, FieldPtr, std::nullptr_t>;
-    const std::variant<i64, std::pair<PE, PE>, std::nullptr_t> Variant;
+    using Skips = std::pair<std::nullptr_t, size_t>;
+    std::variant<i32, FieldPtr, std::pair<std::nullptr_t, size_t>> Variant;
 
   public:
-    constexpr TableEntry(int V) : Variant(static_cast<i64>(V)) {}
-    constexpr TableEntry(int Fst, FieldPtr Snd) : Variant(std::make_pair(static_cast<i32>(Fst), Snd)) {}
-    constexpr TableEntry(std::nullptr_t, FieldPtr Snd) : Variant(std::make_pair(nullptr, Snd)) {}
-    constexpr TableEntry(FieldPtr Fst, FieldPtr Snd) : Variant(std::make_pair(Fst, Snd)) {}
-    constexpr TableEntry(std::nullptr_t) : Variant(nullptr) {}
+    constexpr TableEntry(int V) : Variant(static_cast<i32>(V)) {}
+    constexpr TableEntry(std::pair<std::nullptr_t, std::size_t> V) : Variant(V) {}
+    constexpr TableEntry(FieldPtr V) : Variant(V) {}
 
-    template <typename Sz>
-    constexpr void assertOrAssign(Record &R, const PE &P, Sz Bytes) const
+    constexpr size_t toSkip() const
     {
-      if (std::holds_alternative<std::nullptr_t>(P))
-        return;
-      if (std::holds_alternative<FieldPtr>(P))
-      {
-        auto Field = std::get<FieldPtr>(P);
-        R.*Field = Bytes;
-        return;
-      }
-      util::assert_eq(std::get<i32>(P), Bytes);
+      return std::holds_alternative<Skips>(Variant) ? std::get<size_t>(std::get<Skips>(Variant)) : 0;
     }
-
-    constexpr void assertOrAssign(Record &R, i64 DByte) const
+    constexpr void assign(Record &R, i32 Byte) const
     {
-      if (std::holds_alternative<std::nullptr_t>(Variant))
+      if (std::holds_alternative<Skips>(Variant))
         return;
-      if (std::holds_alternative<std::pair<PE, PE>>(Variant))
-      {
-        auto &[RawFst, RawSnd] = std::get<std::pair<PE, PE>>(Variant);
-        auto [BFst, BSnd] = util::byteswap_pair(DByte);
-        // little endian
-        assertOrAssign(R, RawFst, BFst);
-        assertOrAssign(R, RawSnd, BSnd);
-        return;
-      }
-      util::assert_eq(std::get<i64>(Variant), util::byteswap(DByte));
+      if (std::holds_alternative<FieldPtr>(Variant))
+        R.*(std::get<FieldPtr>(Variant)) = Byte;
+      else
+        util::assert_eq(std::get<i32>(Variant), Byte);
     }
   };
 
-  constexpr std::nullptr_t Skip = nullptr;
+  template <size_t N>
+  constexpr std::pair<std::nullptr_t, size_t> Skip = std::make_pair(nullptr, N);
 
   constexpr TableEntry<Page> PageTable[] = {
-      0x7265, 0x4d61, 0x726b, 0x6162, 0x6c65, 0x202e, 0x6c69, 0x6e65, 0x7320, 0x6669, 0x6c65, 0x2c20, 0x7665, 0x7273, 0x696f, 0x6e3d, 0x3520, 0x2020, 0x2020, 0x2020, 0x2020, {0x20, &Page::NChildren}};
+      0x72, 0x65, 0x4d, 0x61, 0x72, 0x6b, 0x61, 0x62, 0x6c, 0x65, 0x20, 0x2e, 0x6c, 0x69, 0x6e, 0x65, 0x73, 0x20, 0x66, 0x69, 0x6c, 0x65, 0x2c, 0x20, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6f, 0x6e, 0x3d, 0x35, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20,
+      &Page::NChildren, 0x00, 0x00, 0x00};
 
-  constexpr TableEntry<Layer> LayerTable[] = {0x0000, {0x00, &Layer::NChildren}};
+  constexpr TableEntry<Layer> LayerTable[] = {&Layer::NChildren};
 
-  constexpr TableEntry<Line> LineTable[] = {Skip, {Skip, &Line::BrushType}, {&Line::BrushColor, &Line::Padding}, {Skip, &Line::BrushSize}, Skip, Skip, Skip, Skip, Skip, Skip, Skip, {Skip, &Line::NChildren}};
+  constexpr TableEntry<Line> LineTable[] = {Skip<3>, &Line::BrushType, &Line::BrushColor,
+                                            &Line::Padding, Skip<1>, &Line::BrushSize, Skip<15>, &Line::NChildren};
 
   constexpr TableEntry<Point> PointTable[] = {
-      {&Point::X, &Point::Y}, {&Point::Speed, &Point::Direction}, {&Point::Width, &Point::Pressure}};
+      &Point::X, &Point::Y, &Point::Speed, &Point::Direction, &Point::Width, &Point::Pressure};
 } // namespace fc::rM
 
 namespace fc::rM::tablemap
 {
   template <typename T>
-  constexpr std::pair<TableEntry<i32 T::*> *, size_t> M; // you should never use this primary template
+  constexpr std::pair<TableEntry<i32 T::*> *, size_t> M;
 
   template <>
   constexpr inline auto &M<Page> = PageTable;

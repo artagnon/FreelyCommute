@@ -7,7 +7,6 @@
 namespace fc::rM::util
 {
   using i32 = uint8_t;
-  using i64 = uint16_t;
 
   template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
   constexpr void assert_eq(T Expected, T Actual)
@@ -27,16 +26,5 @@ namespace fc::rM::util
       std::cout << Msg << std::endl;
       std::abort();
     }
-  }
-
-  // little endian helpers
-  constexpr i64 byteswap(i64 Read)
-  {
-    return (Read >> 8) | (Read << 8);
-  }
-
-  constexpr std::pair<i32, i32> byteswap_pair(i64 Read)
-  {
-    return std::make_pair(Read, Read >> 8);
   }
 } // namespace fc::rM::util
