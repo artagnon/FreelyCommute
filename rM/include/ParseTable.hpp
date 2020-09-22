@@ -49,21 +49,22 @@
 
 namespace fc::rM
 {
+  struct Skips { int n; };
+
   template <typename Record>
   class TableEntry
   {
     using FieldPtr = i32 Record::*;
-    using Skips = std::pair<std::nullptr_t, size_t>;
     std::variant<i32, FieldPtr, Skips> Variant;
 
   public:
     constexpr TableEntry(int V) : Variant(static_cast<i32>(V)) {}
-    constexpr TableEntry(std::pair<std::nullptr_t, std::size_t> V) : Variant(V) {}
+    constexpr TableEntry(Skips V) : Variant(V) {}
     constexpr TableEntry(FieldPtr V) : Variant(V) {}
 
     constexpr size_t toSkip() const
     {
-      return std::holds_alternative<Skips>(Variant) ? std::get<size_t>(std::get<Skips>(Variant)) : 0;
+      return std::holds_alternative<Skips>(Variant) ? std::get<Skips>(Variant).n : 0;
     }
     constexpr void assign(Record &R, i32 Byte) const
     {
@@ -77,15 +78,12 @@ namespace fc::rM
     }
   };
 
-  template <size_t N>
-  constexpr std::pair<std::nullptr_t, size_t> Skip = std::make_pair(nullptr, N);
-
   constexpr TableEntry<Page> PageTable[] = {&Page::NChildren, 0x00, 0x00, 0x00};
 
   constexpr TableEntry<Layer> LayerTable[] = {&Layer::NChildren};
 
-  constexpr TableEntry<Line> LineTable[] = {Skip<3>, &Line::BrushType, &Line::BrushColor,
-                                            &Line::Padding, Skip<1>, &Line::BrushSize, Skip<15>, &Line::NChildren};
+  constexpr TableEntry<Line> LineTable[] = {Skips{3}, &Line::BrushType, &Line::BrushColor,
+                                            &Line::Padding, Skips{1}, &Line::BrushSize, Skips{15}, &Line::NChildren};
 
   constexpr TableEntry<Point> PointTable[] = {
       &Point::X, &Point::Y, &Point::Speed, &Point::Direction, &Point::Width, &Point::Pressure};
