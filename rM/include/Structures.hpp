@@ -1,34 +1,38 @@
 #pragma once
 
-#include <deque>
-#include <ostream>
-
 namespace fc::rM
 {
-  using i32 = uint8_t;
-  using i64 = uint16_t;
+  using i32 = uint32_t; // We do this to aid reading the binary stream
+  using f32 = uint32_t; // Anyway, we're parsing one byte that we expect to reinterpret_cast appropriately later
 
-  template <typename T>
-  struct AttachChildren
+  // It's important that we write out these structures in full, because we need padding/alignment data
+  // The .rM is a dump of padded structures, to aid quick serialization/deserialization
+  // Do not try to replace C-style arrays with any fancy data structures: the padding data will get messed up
+  struct Point
   {
-    i32 NChildren = 0;
-    std::deque<T> Children;
+    f32 X, Y, Speed, Direction, Width, Pressure;
   };
 
-  struct Point : public AttachChildren<std::nullptr_t>
+  struct Line
   {
-    i32 X, Y, Speed, Direction, Width, Pressure;
+    i32 BrushType;
+    i32 BrushColor;
+    i32 Padding;
+    f32 Unknown;
+    f32 BrushSize;
+    i32 NChildren;
+    Point Children[];
   };
 
-  struct Line : public AttachChildren<Point>
+  struct Layer
   {
-    i32 BrushType, BrushColor, Padding, BrushSize;
+    i32 NChildren;
+    Line Children[];
   };
 
-  struct Layer : public AttachChildren<Line>
+  struct Page
   {
-  };
-  struct Page : public AttachChildren<Layer>
-  {
+    i32 NChildren;
+    Layer Children[];
   };
 } // namespace fc::rM

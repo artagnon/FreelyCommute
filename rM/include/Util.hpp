@@ -3,10 +3,11 @@
 #include <utility>
 #include <cstdlib>
 #include <iostream>
+#include <fstream>
 
 namespace fc::rM::util
 {
-  using i32 = uint8_t;
+  using i32 = uint32_t;
 
   template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
   constexpr void assert_eq(T Expected, T Actual)
@@ -26,6 +27,12 @@ namespace fc::rM::util
       std::cout << Msg << std::endl;
       std::abort();
     }
+  }
+
+  template <typename Field>
+  inline void to_le(Field F, char *b)
+  {
+    F = (static_cast<i32>(b[0]) | static_cast<i32>(b[1]) << 8 | static_cast<i32>(b[2]) << 16 | static_cast<i32>(b[3]) << 24);
   }
 
   template <typename T, typename U>
