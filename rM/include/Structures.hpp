@@ -1,7 +1,6 @@
 #pragma once
 
 #include <deque>
-#include <ostream>
 
 namespace fc::rM
 {
@@ -15,7 +14,7 @@ namespace fc::rM
     std::deque<T> Children;
   };
 
-  struct Point : public AttachChildren<std::nullptr_t>
+  struct Point
   {
     f32 X, Y, Speed, Direction, Width, Pressure;
   };

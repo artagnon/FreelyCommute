@@ -4,7 +4,6 @@
 #include <variant>
 
 #include "ParseTable.hpp"
-#include "Structures.hpp"
 
 namespace fc::rM
 {
@@ -14,7 +13,7 @@ namespace fc::rM
     Page Root;
 
     template <typename T>
-    T miniParser()
+    T miniParser() const
     {
       T Record;
       for (auto &&elt : tablemap::M<T>)
