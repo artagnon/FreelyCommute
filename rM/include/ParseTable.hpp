@@ -51,14 +51,24 @@ namespace fc::rM
   template <typename Record>
   class TableEntry
   {
-    using FieldPtr = i32 Record::*;
-    FieldPtr Ptr;
+    using iFieldPtr = i32 Record::*;
+    using fFieldPtr = f32 Record::*;
+    using Variant = std::variant<iFieldPtr, fFieldPtr>;
+
+    Variant Ptr;
 
   public:
-    constexpr TableEntry(FieldPtr V) : Ptr(V) {}
-    constexpr void assign(Record &R, i32 Byte) const
+    constexpr TableEntry(iFieldPtr V) : Ptr(V) {}
+    constexpr TableEntry(fFieldPtr V) : Ptr(V) {}
+    constexpr void assign(Record &R, i32 Bytes) const
     {
-      R.*(Ptr) = Byte;
+      std::visit([&R, &Bytes](auto Arg) {
+        if constexpr (util::decay_equiv_v<decltype(Arg), iFieldPtr>)
+          R.*(Arg) = util::to_le(reinterpret_cast<char *>(&Bytes));
+        else if constexpr (util::decay_equiv_v<decltype(Arg), fFieldPtr>)
+          R.*(Arg) = reinterpret_cast<f32 &>(Bytes);
+      },
+                 Ptr);
     }
   };
 

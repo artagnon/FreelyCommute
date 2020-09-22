@@ -6,7 +6,7 @@
 namespace fc::rM
 {
   using i32 = uint32_t;
-  using f32 = uint32_t;
+  using f32 = float;
 
   template <typename T>
   struct AttachChildren

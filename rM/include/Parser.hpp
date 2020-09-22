@@ -21,7 +21,7 @@ namespace fc::rM
       {
         i32 Scratch = 0;
         Stream.read(reinterpret_cast<char *>(&Scratch), sizeof(Scratch));
-        elt.assign(Record, util::to_le(reinterpret_cast<char *>(&Scratch)));
+        elt.assign(Record, Scratch);
       }
       return Record;
     };
