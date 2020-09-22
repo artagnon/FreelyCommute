@@ -4,8 +4,6 @@
 
 namespace fc::rM::util
 {
-  using i32 = uint32_t;
-
   template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
   constexpr void assert_eq(T Expected, T Actual)
   {
@@ -26,7 +24,7 @@ namespace fc::rM::util
     }
   }
 
-  inline i32 to_le(char *b)
+  constexpr inline uint32_t to_le(char *b)
   {
     return (b[0] & 0xFF) | ((b[1] << 8) & 0xFF) | ((b[2] << 16) & 0xFF) | ((b[3] << 24) & 0xFF);
   }
