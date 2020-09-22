@@ -30,7 +30,7 @@ namespace fc::rM::util
 
   inline i32 to_le(char *b)
   {
-    return (static_cast<i32>(b[0]) | static_cast<i32>(b[1]) << 8 | static_cast<i32>(b[2]) << 16 | static_cast<i32>(b[3]) << 24);
+    return (b[0] & 0xFF) | ((b[1] << 8) & 0xFF) | ((b[2] << 16) & 0xFF) | ((b[3] << 24) & 0xFF);
   }
 
   template <typename T, typename U>

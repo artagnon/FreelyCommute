@@ -22,8 +22,8 @@ namespace fc::rM
 
   struct Line : public AttachChildren<Point>
   {
-    i32 BrushType, BrushColor, Padding, Unknown;
-    f32 BrushSize;
+    i32 BrushType, BrushColor, Padding;
+    f32 Unknown, BrushSize;
   };
 
   struct Layer : public AttachChildren<Line>
