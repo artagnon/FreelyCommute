@@ -23,6 +23,7 @@ int main(int argc, char *argv[])
   util::assert(!strncmp(ActualHdr, ExpectedHdr, Sz - 1), "Header mismatched; please use a valid .rM v5 file");
 
   std::cout << Parser{Stream} << std::endl;
+  util::assert(Stream.get() == -1, "End of file marker was not found");
   util::assert(Stream.eof(), "Some bytes were found at the end of the stream");
   Stream.close();
   return EXIT_SUCCESS;
