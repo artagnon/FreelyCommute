@@ -18,10 +18,10 @@ namespace fc::rM
       T Record;
       for (auto &&elt : tablemap::M<T>)
       {
-        util::assert(!Stream.eof(), "End of stream reached prematurely");
-        auto Field = Record.*(elt.Ptr);
-        Stream.read(reinterpret_cast<char *>(&Field), sizeof(Field));
-        util::to_le(Field, reinterpret_cast<char *>(&Field));
+        Stream.ignore(elt.toSkip());
+        if (elt.toSkip())
+          continue;
+        elt.assign(Record, Stream.get());
       }
       return Record;
     };
@@ -36,9 +36,9 @@ namespace fc::rM
 
       for (i32 j = 0; j < E.NChildren; ++j)
       {
-        E.Children[j] = std::move(miniParser<TyR>());
+        E.Children.push_back(miniParser<TyR>());
         if constexpr (i + 1 < sizeof...(Ts))
-          recurseFillChildren<i + 1, Ts...>(E.Children[j]);
+          recurseFillChildren<i + 1, Ts...>(E.Children.back());
       }
     };
 

@@ -13,28 +13,19 @@ namespace fc::rM
   inline std::ostream &operator<<(std::ostream &OS, const Line &Obj)
   {
     OS << std::string(2, ' ') << std::dec << +Obj.NChildren << " points:" << std::endl;
-    for (size_t i = 0; i < Obj.NChildren; ++i)
-    {
-      OS << Obj.Children[i];
-    }
+    std::for_each(Obj.Children.begin(), Obj.Children.end(), [&OS](auto Child) { OS << Child; });
     return OS;
   }
   inline std::ostream &operator<<(std::ostream &OS, const Layer &Obj)
   {
     OS << std::string(1, ' ') << std::dec << +Obj.NChildren << " lines:" << std::endl;
-    for (size_t i = 0; i < Obj.NChildren; ++i)
-    {
-      OS << Obj.Children[i];
-    }
+    std::for_each(Obj.Children.begin(), Obj.Children.end(), [&OS](auto Child) { OS << Child; });
     return OS;
   }
   inline std::ostream &operator<<(std::ostream &OS, const Page &Obj)
   {
     OS << std::dec << +Obj.NChildren << " layers:" << std::endl;
-    for (size_t i = 0; i < Obj.NChildren; ++i)
-    {
-      OS << Obj.Children[i];
-    }
+    std::for_each(Obj.Children.begin(), Obj.Children.end(), [&OS](auto Child) { OS << Child; });
     return OS;
   }
 } // namespace fc::rM

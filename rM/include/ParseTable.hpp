@@ -50,17 +50,45 @@
 namespace fc::rM
 {
   template <typename Record>
-  struct TableEntry
+  class TableEntry
   {
     using FieldPtr = i32 Record::*;
-    FieldPtr Ptr;
+    using Skips = std::pair<std::nullptr_t, size_t>;
+    std::variant<i32, FieldPtr, Skips> Variant;
+
+  public:
+    constexpr TableEntry(int V) : Variant(static_cast<i32>(V)) {}
+    constexpr TableEntry(std::pair<std::nullptr_t, std::size_t> V) : Variant(V) {}
+    constexpr TableEntry(FieldPtr V) : Variant(V) {}
+
+    constexpr size_t toSkip() const
+    {
+      return std::holds_alternative<Skips>(Variant) ? std::get<size_t>(std::get<Skips>(Variant)) : 0;
+    }
+    constexpr void assign(Record &R, i32 Byte) const
+    {
+      auto Visitor = [&R, &Byte](auto &Arg) {
+        if constexpr (util::decay_equiv_v<decltype(Arg), FieldPtr>)
+          R.*(Arg) = Byte;
+        else if constexpr (util::decay_equiv_v<decltype(Arg), i32>)
+          util::assert_eq(Arg, Byte);
+      };
+      std::visit(Visitor, Variant);
+    }
   };
 
-  constexpr TableEntry<Page> PageTable[] = {&Page::NChildren};
-  constexpr TableEntry<Layer> LayerTable[] = {&Layer::NChildren};
-  constexpr TableEntry<Line> LineTable[] = {&Line::BrushType, &Line::BrushColor, &Line::Padding, &Line::Unknown,
-                                            &Line::BrushSize, &Line::NChildren};
-  constexpr TableEntry<Point> PointTable[] = {&Point::X, &Point::Y, &Point::Speed, &Point::Direction, &Point::Width, &Point::Pressure};
+  template <size_t N>
+  constexpr std::pair<std::nullptr_t, size_t> Skip = std::make_pair(nullptr, N);
+
+  constexpr TableEntry<Page> PageTable[] = {&Page::NChildren, Skip<3>};
+
+  constexpr TableEntry<Layer> LayerTable[] = {&Layer::NChildren, Skip<2>};
+
+  constexpr TableEntry<Line> LineTable[] = {&Line::BrushType, &Line::BrushColor,
+                                            &Line::Padding, Skip<1>, &Line::BrushSize, Skip<16>, &Line::NChildren, Skip<3>};
+
+  constexpr TableEntry<Point> PointTable[] = {
+      &Point::X, &Point::Y, &Point::Speed, &Point::Direction, &Point::Width, &Point::Pressure};
 } // namespace fc::rM
 
 namespace fc::rM::tablemap
