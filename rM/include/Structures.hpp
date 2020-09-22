@@ -5,8 +5,8 @@
 
 namespace fc::rM
 {
-  using i32 = uint8_t;
-  using i64 = uint16_t;
+  using i32 = uint32_t;
+  using f32 = uint32_t;
 
   template <typename T>
   struct AttachChildren
@@ -17,12 +17,13 @@ namespace fc::rM
 
   struct Point : public AttachChildren<std::nullptr_t>
   {
-    i32 X, Y, Speed, Direction, Width, Pressure;
+    f32 X, Y, Speed, Direction, Width, Pressure;
   };
 
   struct Line : public AttachChildren<Point>
   {
-    i32 BrushType, BrushColor, Padding, BrushSize;
+    i32 BrushType, BrushColor, Padding, Unknown;
+    f32 BrushSize;
   };
 
   struct Layer : public AttachChildren<Line>

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <variant>
 
 #include "ParseTable.hpp"
 #include "Structures.hpp"
@@ -18,10 +19,9 @@ namespace fc::rM
       T Record;
       for (auto &&elt : tablemap::M<T>)
       {
-        Stream.ignore(elt.toSkip());
-        if (elt.toSkip())
-          continue;
-        elt.assign(Record, Stream.get());
+        i32 Scratch = 0;
+        Stream.read(reinterpret_cast<char *>(&Scratch), sizeof(Scratch));
+        elt.assign(Record, util::to_le(reinterpret_cast<char *>(&Scratch)));
       }
       return Record;
     };
