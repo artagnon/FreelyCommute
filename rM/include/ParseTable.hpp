@@ -84,13 +84,13 @@ namespace fc::rM
       if (std::holds_alternative<std::pair<PE, PE>>(Raw))
       {
         auto &[RawFst, RawSnd] = std::get<std::pair<PE, PE>>(Raw);
-        auto [BFst, BSnd] = util::le_pair(DByte);
+        auto [BFst, BSnd] = util::byteswap_pair(DByte);
         // little endian
         assertOrAssign(R, RawFst, BFst);
         assertOrAssign(R, RawSnd, BSnd);
         return;
       }
-      util::assert_eq(std::get<i64>(Raw), util::le_extract(DByte));
+      util::assert_eq(std::get<i64>(Raw), util::byteswap(DByte));
     }
   };
 
@@ -110,14 +110,14 @@ namespace fc::rM
 namespace fc::rM::tablemap
 {
   template <typename T>
-  char M = throw;  // you should never use this primary template
+  constexpr std::pair<TableEntry<i32 T::*> *, size_t> M; // you should never use this primary template
 
   template <>
-  constexpr inline auto& M<Page> = PageTable;
+  constexpr inline auto &M<Page> = PageTable;
   template <>
-  constexpr inline auto& M<Layer> = LayerTable;
+  constexpr inline auto &M<Layer> = LayerTable;
   template <>
-  constexpr inline auto& M<Line> = LineTable;
+  constexpr inline auto &M<Line> = LineTable;
   template <>
-  constexpr inline auto& M<Point> = PointTable;
+  constexpr inline auto &M<Point> = PointTable;
 } // namespace fc::rM::tablemap

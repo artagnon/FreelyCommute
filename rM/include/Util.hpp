@@ -30,12 +30,12 @@ namespace fc::rM::util
   }
 
   // little endian helpers
-  constexpr i64 le_extract(i64 Read)
+  constexpr i64 byteswap(i64 Read)
   {
     return (Read >> 8) | (Read << 8);
   }
 
-  constexpr std::pair<i32, i32> le_pair(i64 Read)
+  constexpr std::pair<i32, i32> byteswap_pair(i64 Read)
   {
     return std::make_pair(Read, Read >> 8);
   }
