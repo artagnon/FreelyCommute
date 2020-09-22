@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vector>
+#include <deque>
 #include <ostream>
 
 namespace fc::rM
@@ -12,7 +12,7 @@ namespace fc::rM
   struct AttachChildren
   {
     i32 NChildren = 0;
-    std::vector<T> Children;
+    std::deque<T> Children;
   };
 
   struct Point : public AttachChildren<std::nullptr_t>

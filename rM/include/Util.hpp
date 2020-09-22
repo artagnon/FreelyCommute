@@ -27,4 +27,7 @@ namespace fc::rM::util
       std::abort();
     }
   }
+
+  template <typename T, typename U>
+  constexpr bool decay_equiv_v = static_cast<bool>(std::is_same_v<std::decay_t<T>, U>);
 } // namespace fc::rM::util

@@ -54,7 +54,7 @@ namespace fc::rM
   {
     using FieldPtr = i32 Record::*;
     using Skips = std::pair<std::nullptr_t, size_t>;
-    std::variant<i32, FieldPtr, std::pair<std::nullptr_t, size_t>> Variant;
+    std::variant<i32, FieldPtr, Skips> Variant;
 
   public:
     constexpr TableEntry(int V) : Variant(static_cast<i32>(V)) {}
@@ -67,12 +67,13 @@ namespace fc::rM
     }
     constexpr void assign(Record &R, i32 Byte) const
     {
-      if (std::holds_alternative<Skips>(Variant))
-        return;
-      if (std::holds_alternative<FieldPtr>(Variant))
-        R.*(std::get<FieldPtr>(Variant)) = Byte;
-      else
-        util::assert_eq(std::get<i32>(Variant), Byte);
+      auto Visitor = [&R, &Byte](auto &Arg) {
+        if constexpr (util::decay_equiv_v<decltype(Arg), FieldPtr>)
+          R.*(Arg) = Byte;
+        else if constexpr (util::decay_equiv_v<decltype(Arg), i32>)
+          util::assert_eq(Arg, Byte);
+      };
+      std::visit(Visitor, Variant);
     }
   };
 
