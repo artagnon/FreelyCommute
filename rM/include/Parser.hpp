@@ -26,26 +26,20 @@ namespace fc::rM
       return Record;
     };
 
-    template <typename TyL, typename TyR>
-    void fillChildren(TyL &E)
-    {
-      for (i32 i = 0; i < E.NChildren; ++i)
-      {
-        E.Children.push_back(miniParser<TyR>());
-      }
-    };
-
     template <size_t i, typename... Ts, typename CurTy>
     void recurseFillChildren(CurTy &E)
     {
       using PackTy = std::variant<Ts...>;
-      static_assert(std::is_same_v<CurTy, std::variant_alternative_t<i - 1, PackTy>>);
       using TyL = std::variant_alternative_t<i - 1, PackTy>;
+      static_assert(std::is_same_v<CurTy, TyL>);
       using TyR = std::variant_alternative_t<i, PackTy>;
 
-      fillChildren<TyL, TyR>(E);
-      if constexpr (i + 1 < sizeof...(Ts))
-        std::for_each(E.Children.begin(), E.Children.end(), [this](auto &E) { recurseFillChildren<i + 1, Ts...>(E); });
+      for (i32 j = 0; j < E.NChildren; ++j)
+      {
+        E.Children.push_back(miniParser<TyR>());
+        if constexpr (i + 1 < sizeof...(Ts))
+          recurseFillChildren<i + 1, Ts...>(E.Children.back());
+      }
     };
 
   public:

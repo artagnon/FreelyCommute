@@ -8,7 +8,6 @@ namespace fc::rM
   inline std::ostream &operator<<(std::ostream &OS, const Point &Obj)
   {
     OS << std::string(3, ' ') << "{" << reinterpret_cast<const float &>(Obj.X) << ", " << reinterpret_cast<const float &>(Obj.Y) << ", " << reinterpret_cast<const float &>(Obj.Speed) << ", " << reinterpret_cast<const float &>(Obj.Direction) << ", " << reinterpret_cast<const float &>(Obj.Width) << ", " << reinterpret_cast<const float &>(Obj.Pressure) << "}" << std::endl;
-    std::for_each(Obj.Children.begin(), Obj.Children.end(), [&OS](auto Child) { OS << Child; });
     return OS;
   }
   inline std::ostream &operator<<(std::ostream &OS, const Line &Obj)

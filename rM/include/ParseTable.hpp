@@ -80,9 +80,9 @@ namespace fc::rM
   template <size_t N>
   constexpr std::pair<std::nullptr_t, size_t> Skip = std::make_pair(nullptr, N);
 
-  constexpr TableEntry<Page> PageTable[] = {&Page::NChildren};
+  constexpr TableEntry<Page> PageTable[] = {&Page::NChildren, Skip<3>};
 
-  constexpr TableEntry<Layer> LayerTable[] = {Skip<3>, &Layer::NChildren, Skip<2>};
+  constexpr TableEntry<Layer> LayerTable[] = {&Layer::NChildren, Skip<2>};
 
   constexpr TableEntry<Line> LineTable[] = {&Line::BrushType, &Line::BrushColor,
                                             &Line::Padding, Skip<1>, &Line::BrushSize, Skip<16>, &Line::NChildren, Skip<3>};
