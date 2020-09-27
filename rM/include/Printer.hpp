@@ -1,7 +1,8 @@
 #include <ostream>
-#include <algorithm>
 
 #include "Structures.hpp"
+
+#define check_err(condition) condition ? void(0) : SpecialType &ErrorStreamer
 
 namespace fc::rM
 {
@@ -32,5 +33,12 @@ namespace fc::rM
     OS << std::dec << +Obj.NChildren << " layers:" << std::endl;
     printChildren(OS, Obj);
     return OS;
+  }
+  class ErrorStreamer
+  {
+  };
+
+  inline std::ostream &operator<<(std::ostream &OS, const ErrorStreamer &Obj)
+  {
   }
 } // namespace fc::rM

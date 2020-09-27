@@ -6,14 +6,14 @@ ident = _{ id | "{" ~ id ~ "}" }
     mathbb = @{ "\\mathbb{" ~ id ~ "}" }
     greek = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" }
   bullet = @{ "\\bullet" }
-  exists = @{ ("\\exists" | "\\exists!") }
+  exists = @{ "\\exists" ~ "!"? }
   special = @{ "\\circ" | "\\times" | "\\langle" | "\\rangle" }
 
 suborsuper = _{ superscr | subscr }
   superscr = @{ "^" }
   subscr = @{ "_" }
 
-node = _{ ident+ ~ (suborsuper ~ ident+)* }
+node = _{ ident ~ (suborsuper ~ ident)* }
 
 arrow = _{ ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
   ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ "{" ~ ar_style? ~ "}")? ~ ar_directions }
