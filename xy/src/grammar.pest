@@ -1,15 +1,14 @@
-ident = _{ pident | unary | angles | binary }
+ident = _{ unary | angles | binary | pident }
   pident = _{ id | "{" ~ id ~ "}" }
-    id = _{ (idprim | mathbb | greek | bullet) }
+    id = _{ (idprim | greek | bullet | exists) }
       idprim = @{ (alpha | digit)+ }
         alpha = _{ 'a'..'z' | 'A'..'Z' }
         digit = _{ '0'..'9' }
-      mathbb = @{ "\\mathbb{" ~ id ~ "}" }
       greek = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" | "\\epsilon" }
     bullet = @{ "\\bullet" }
     exists = @{ "\\exists" ~ "!"? }
-  unary = @{ exists ~ ident }
-  binary = @{ pident ~ ("\\circ" | "\\times") ~ pident }
+  unary = { "{" ~ exists ~ pident ~ "}" | "\\mathbb{" ~ id ~ "}" }
+  binary = { pident ~ ("\\circ" | "\\times") ~ pident }
   angles = { "\\langle" ~ pident ~ "," ~ pident ~ "\\rangle" }
 
 suborsuper = _{ superscr | subscr }
@@ -18,20 +17,21 @@ suborsuper = _{ superscr | subscr }
 
 node = _{ ident ~ (suborsuper ~ ident)* }
 
-arrow = _{ ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
-  ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ "{" ~ ar_style? ~ "}")? ~ ar_directions }
-    ar_style = @{ "=>" | ".>" | ":>" | "~>" | "-->" | "-" }
-    ar_directions = @{ ("[" ~ ("l"|"r"|"u"|"d")+ ~ "]")+ }
-    ar_curvature = { "/" ~ suborsuper ~ "/" }
-    label_shift = @{ ("<" | ">")+ }
-    label_mid = { "|" ~ node }
+arrows = _{ arrow+ }
+  arrow = { ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
+    ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ "{" ~ ar_style? ~ "}")? ~ ar_directions }
+      ar_style = @{ "=>" | ".>" | ":>" | "~>" | "-->" | "-" }
+      ar_directions = @{ ("[" ~ ("l"|"r"|"u"|"d")+ ~ "]")+ }
+      ar_curvature = { "/" ~ suborsuper ~ "/" }
+      label_shift = @{ ("<" | ">")+ }
+      label_mid = { "|" ~ node }
 
 
 main = _{SOI ~ xydia+ ~ EOI}
   xydia = _{ linenl* ~ lastline }
     linenl = _{ line ~ ("\\\\" ~ NEWLINE) }
     lastline = _{ line ~ "\\\\"? ~ NEWLINE }
-      line = _{ amp* ~ (node ~ arrow? ~ amp*)* }
+      line = _{ amp* ~ (node ~ arrows? ~ amp*)* }
         amp = @{ "&" }
 
 WHITESPACE = _{ " " | "\t" }
