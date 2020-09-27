@@ -1,13 +1,16 @@
-ident = _{ id | "{" ~ id ~ "}" }
-  id = _{ (idprim | mathbb | greek | bullet | exists | special) }
-    idprim = @{ (alpha | digit)+ }
-      alpha = _{ 'a'..'z' | 'A'..'Z' }
-      digit = _{ '0'..'9' }
-    mathbb = @{ "\\mathbb{" ~ id ~ "}" }
-    greek = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" | "\\epsilon" }
-  bullet = @{ "\\bullet" }
-  exists = @{ "\\exists" ~ "!"? }
-  special = @{ "\\circ" | "\\times" | "\\langle" | "\\rangle" }
+ident = _{ pident | unary | angles | binary }
+  pident = _{ id | "{" ~ id ~ "}" }
+    id = _{ (idprim | mathbb | greek | bullet) }
+      idprim = @{ (alpha | digit)+ }
+        alpha = _{ 'a'..'z' | 'A'..'Z' }
+        digit = _{ '0'..'9' }
+      mathbb = @{ "\\mathbb{" ~ id ~ "}" }
+      greek = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" | "\\epsilon" }
+    bullet = @{ "\\bullet" }
+    exists = @{ "\\exists" ~ "!"? }
+  unary = @{ exists ~ ident }
+  binary = @{ pident ~ ("\\circ" | "\\times") ~ pident }
+  angles = { "\\langle" ~ pident ~ "," ~ pident ~ "\\rangle" }
 
 suborsuper = _{ superscr | subscr }
   superscr = @{ "^" }
@@ -19,7 +22,7 @@ arrow = _{ ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
   ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ "{" ~ ar_style? ~ "}")? ~ ar_directions }
     ar_style = @{ "=>" | ".>" | ":>" | "~>" | "-->" | "-" }
     ar_directions = @{ ("[" ~ ("l"|"r"|"u"|"d")+ ~ "]")+ }
-    ar_curvature = @{ "/" ~ suborsuper ~ "/" }
+    ar_curvature = { "/" ~ suborsuper ~ "/" }
     label_shift = @{ ("<" | ">")+ }
     label_mid = { "|" ~ node }
 
