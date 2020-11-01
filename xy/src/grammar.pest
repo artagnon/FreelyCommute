@@ -5,31 +5,26 @@ ident = _{ "{"? ~ (binary | unary | angled | pident) ~ "}"? }
     bullet = @{ "\\bullet" }
     exists = @{ "\\exists" ~ "!"? }
   unary = { exists ~ pident | "\\mathbb" ~ pident }
-  binary = { (pident ~ ("\\circ" | "\\times"))+ ~ pident }
+  binary = { (pident ~ ("\\circ" | "\\times" | "_" | "^"))+ ~ pident }
   angled = { "\\langle" ~ pident ~ "," ~ pident ~ "\\rangle" }
 
-suborsuper = _{ superscr | subscr }
-  superscr = @{ "^" }
-  subscr = @{ "_" }
-
 node = _{ ident ~ (suborsuper ~ ident)* }
+  suborsuper = @{ "^" | "_" }
 
-arrows = _{ arrow+ }
-  arrow = { ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
-    ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ ar_style?)* ~ ar_direction }
-      ar_style = @{ "{" ~ ("=>" | ".>" | ":>" | "~>" | "-->" | "-" | "|->") ~ "}" }
-      ar_direction = @{ "[" ~ ("l"|"r"|"u"|"d")+ ~ "]" }
-      ar_curvature = @{ "/" ~ suborsuper ~ curvepc? ~ "/" }
-        curvepc = _{'0'..'9' ~ ("." ~ '0'..'9')? ~ "pc" }
-      label_shift = @{ ("<" | ">")+ }
-      label_mid = @{ "|" ~ node }
-
+arrow = { ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
+  ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ ar_style?)* ~ ar_direction }
+    ar_style = @{ "{" ~ ("=>" | ".>" | ":>" | "~>" | "-->" | "-" | "|->") ~ "}" }
+    ar_direction = @{ "[" ~ ("l"|"r"|"u"|"d")+ ~ "]" }
+    ar_curvature = @{ "/" ~ suborsuper ~ curvepc? ~ "/" }
+      curvepc = _{'0'..'9' ~ ("." ~ '0'..'9')? ~ "pc" }
+    label_shift = @{ ("<" | ">")+ }
+    label_mid = @{ "|" ~ node }
 
 main = _{SOI ~ xydia+ ~ EOI}
   xydia = _{ linenl* ~ lastline }
     linenl = _{ line ~ ("\\\\" ~ NEWLINE) }
     lastline = _{ line ~ "\\\\"? ~ NEWLINE }
-      line = _{ amp* ~ (node ~ arrows? ~ amp*)* }
+      line = _{ amp* ~ (node ~ arrow* ~ amp*)* }
         amp = @{ "&" }
 
 WHITESPACE = _{ " " | "\t" }
