@@ -1,30 +1,27 @@
-ident = _{ "{"? ~ (binary | unary | angled | pident) ~ "}"? }
-  pident = _{ idprim | greek | bullet | exists }
-    idprim = @{ ('a'..'z' | 'A'..'Z' | '0'..'9')+ }
-    greek = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" | "\\epsilon" | "\\mu" | "\\eta" | "\\rho" }
-    bullet = @{ "\\bullet" }
-    exists = @{ "\\exists" ~ "!"? }
-  unary = { exists ~ pident | "\\mathbb" ~ pident }
+ident = _{ "{"? ~ (binary | angled | pident) ~ "}"? }
   binary = { (pident ~ ("\\circ" | "\\times" | "_" | "^"))+ ~ pident }
-  angled = { "\\langle" ~ pident ~ "," ~ pident ~ "\\rangle" }
+  angled = { "\\langle" ~ ident+ ~ "\\rangle" }
+  pident = _{ "{"? ~ (nullary | unary | idprim) ~ "}"? }
+    nullary = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" | "\\epsilon" | "\\mu" | "\\eta" | "\\rho" | "\\bullet" | "\\tau" | "\\hole" | exists }
+      exists = @{ "\\exists" ~ "!"? }
+    unary = { (exists | "\\mathbb" | "\\text" | "\\textrm") ~ pident }
+    idprim = @{ ('a'..'z' | 'A'..'Z' | '0'..'9' | "(" | ")" | "=" | "-" | "'" | "*" | "/" | "[" | "]" | ",")+ }
 
-node = _{ ident ~ (suborsuper ~ ident)* }
-  suborsuper = @{ "^" | "_" }
-
-arrow = { ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
+arrow = { ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ ident)* }
   ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ ar_style?)* ~ ar_direction }
-    ar_style = @{ "{" ~ ("=>" | ".>" | ":>" | "~>" | "-->" | "-" | "|->") ~ "}" }
+    ar_style = @{ "{" ~ ("=>" | ".>" | ":>" | "~>" | "-->" | "-" | "|->" | "") ~ "}" }
     ar_direction = @{ "[" ~ ("l"|"r"|"u"|"d")+ ~ "]" }
     ar_curvature = @{ "/" ~ suborsuper ~ curvepc? ~ "/" }
       curvepc = _{'0'..'9' ~ ("." ~ '0'..'9')? ~ "pc" }
-    label_shift = @{ ("<" | ">")+ }
-    label_mid = @{ "|" ~ node }
+  label_shift = @{ ("<" | ">")+ }
+  label_mid = @{ "|" ~ ident }
+  suborsuper = @{ "^" | "_" }
 
 main = _{SOI ~ xydia+ ~ EOI}
   xydia = _{ linenl* ~ lastline }
-    linenl = _{ line ~ ("\\\\" ~ NEWLINE) }
+    linenl = _{ line ~ "\\\\" ~ NEWLINE }
     lastline = _{ line ~ "\\\\"? ~ NEWLINE }
-      line = _{ amp* ~ (node ~ arrow* ~ amp*)* }
-        amp = @{ "&" }
+      line = _{ amp* ~ (ident ~ arrow* ~ amp*)* }
+      amp = @{ "&" }
 
 WHITESPACE = _{ " " | "\t" }
