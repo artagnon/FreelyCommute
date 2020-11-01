@@ -1,15 +1,12 @@
-ident = _{ unary | angles | binary | pident }
-  pident = _{ id | "{" ~ id ~ "}" }
-    id = _{ (idprim | greek | bullet | exists) }
-      idprim = @{ (alpha | digit)+ }
-        alpha = _{ 'a'..'z' | 'A'..'Z' }
-        digit = _{ '0'..'9' }
-      greek = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" | "\\epsilon" }
+ident = _{ "{"? ~ (binary | unary | angled | pident) ~ "}"? }
+  pident = _{ idprim | greek | bullet | exists }
+    idprim = @{ ('a'..'z' | 'A'..'Z' | '0'..'9')+ }
+    greek = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" | "\\epsilon" | "\\mu" | "\\eta" | "\\rho" }
     bullet = @{ "\\bullet" }
     exists = @{ "\\exists" ~ "!"? }
-  unary = { "{" ~ exists ~ pident ~ "}" | "\\mathbb{" ~ id ~ "}" }
-  binary = { pident ~ ("\\circ" | "\\times") ~ pident }
-  angles = { "\\langle" ~ pident ~ "," ~ pident ~ "\\rangle" }
+  unary = { exists ~ pident | "\\mathbb" ~ pident }
+  binary = { (pident ~ ("\\circ" | "\\times"))+ ~ pident }
+  angled = { "\\langle" ~ pident ~ "," ~ pident ~ "\\rangle" }
 
 suborsuper = _{ superscr | subscr }
   superscr = @{ "^" }
@@ -19,12 +16,13 @@ node = _{ ident ~ (suborsuper ~ ident)* }
 
 arrows = _{ arrow+ }
   arrow = { ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ node)* }
-    ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ "{" ~ ar_style? ~ "}")? ~ ar_directions }
-      ar_style = @{ "=>" | ".>" | ":>" | "~>" | "-->" | "-" }
-      ar_directions = @{ ("[" ~ ("l"|"r"|"u"|"d")+ ~ "]")+ }
-      ar_curvature = { "/" ~ suborsuper ~ "/" }
+    ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ ar_style?)* ~ ar_direction }
+      ar_style = @{ "{" ~ ("=>" | ".>" | ":>" | "~>" | "-->" | "-" | "|->") ~ "}" }
+      ar_direction = @{ "[" ~ ("l"|"r"|"u"|"d")+ ~ "]" }
+      ar_curvature = @{ "/" ~ suborsuper ~ curvepc? ~ "/" }
+        curvepc = _{'0'..'9' ~ ("." ~ '0'..'9')? ~ "pc" }
       label_shift = @{ ("<" | ">")+ }
-      label_mid = { "|" ~ node }
+      label_mid = @{ "|" ~ node }
 
 
 main = _{SOI ~ xydia+ ~ EOI}
