@@ -1,16 +1,18 @@
-ident = _{ "{"? ~ (binary | angled | pident) ~ "}"? }
+ident = _{ "{" ~ ident_ ~ "}" | ident_ }
+  ident_ = _{ binary | angled | pident }
   binary = { (pident ~ ("\\circ" | "\\times" | "_" | "^"))+ ~ pident }
   angled = { "\\langle" ~ ident+ ~ "\\rangle" }
-  pident = _{ "{"? ~ (nullary | unary | idprim) ~ "}"? }
+  pident = _{ "{"? ~ pident_ ~ "}"? }
+    pident_ = _{ unary | nullary | idprim }
+    unary = { (exists | "\\mathbb" | "\\text" ~ "bf"? | "\\textrm") ~ pident }
     nullary = @{ "\\alpha" | "\\beta" | "\\gamma" | "\\delta" | "\\pi" | "\\lambda" | "\\phi" | "\\theta" | "\\epsilon" | "\\mu" | "\\eta" | "\\rho" | "\\bullet" | "\\tau" | "\\hole" | exists }
       exists = @{ "\\exists" ~ "!"? }
-    unary = { (exists | "\\mathbb" | "\\text" | "\\textrm") ~ pident }
     idprim = @{ ('a'..'z' | 'A'..'Z' | '0'..'9' | "(" | ")" | "=" | "-" | "'" | "*" | "/" | "[" | "]" | ",")+ }
 
 arrow = { ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ ident)* }
   ar = _{ "\\ar" ~ ("@" ~ ar_curvature? ~ ar_style?)* ~ ar_direction }
     ar_style = @{ "{" ~ ("=>" | ".>" | ":>" | "~>" | "-->" | "-" | "|->" | "") ~ "}" }
-    ar_direction = @{ "[" ~ ("l"|"r"|"u"|"d")+ ~ "]" }
+    ar_direction = @{ "[" ~ ("l" | "r" | "u" | "d")+ ~ "]" }
     ar_curvature = @{ "/" ~ suborsuper ~ curvepc? ~ "/" }
       curvepc = _{'0'..'9' ~ ("." ~ '0'..'9')? ~ "pc" }
   label_shift = @{ ("<" | ">")+ }
