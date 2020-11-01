@@ -22,7 +22,7 @@ arrow = { ar ~ label_mid? ~ (suborsuper ~ label_shift? ~ ident)* }
 main = _{SOI ~ xydia+ ~ EOI}
   xydia = _{ linenl* ~ lastline }
     linenl = _{ line ~ "\\\\" ~ NEWLINE }
-    lastline = _{ line ~ "\\\\"? ~ NEWLINE }
+    lastline = _{ line ~ NEWLINE }
       line = _{ amp* ~ (ident ~ arrow* ~ amp*)* }
       amp = @{ "&" }
 
