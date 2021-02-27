@@ -15,7 +15,7 @@ namespace fc::rM::util
     }
   }
 
-  constexpr void assert(bool Condition, const char Msg[])
+  constexpr void assert_msg(bool Condition, const char Msg[])
   {
     if (!Condition)
     {
