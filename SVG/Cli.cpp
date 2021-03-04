@@ -1,13 +1,18 @@
+#include <iostream>
+
 #include "SVG/Printer.hpp"
 
 using namespace fc::svg;
 
-// Demo page shows sample usage of the Simple SVG library.
-
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc < 2)
+    {
+        std::cout << "Usage: " << argv[0] << " <output .svg file>" << std::endl;
+        return EXIT_FAILURE;
+    }
     Dimensions dimensions(100, 100);
-    Document doc("my_svg.svg", Layout(dimensions, Layout::BottomLeft));
+    Document doc(argv[1], Layout(dimensions, Layout::BottomLeft));
 
     // Red image border.
     Polygon border(Stroke(1, Color::Red));
@@ -45,4 +50,5 @@ int main()
     doc << Rectangle(Point(70, 55), 20, 15, Color::Yellow);
 
     doc.save();
+    return EXIT_SUCCESS;
 }
