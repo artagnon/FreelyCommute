@@ -8,15 +8,27 @@ namespace fc::rM
   using f32 = float;
 
   template <typename T>
-  struct AttachChildren
+  struct AttachChildren : public std::deque<T>
   {
     i32 NChildren = 0;
-    std::deque<T> Children;
   };
 
   struct Point
   {
     f32 X, Y, Speed, Direction, Width, Pressure;
+  };
+
+  enum BrushType
+  {
+    BallPoint = 15,
+    Marker = 16,
+    Fineliner = 17,
+    SharpPencil = 13,
+    TiltPencil = 14,
+    Brush = 12,
+    Highlighter = 18,
+    Eraser = 6,
+    EraseArea = 8,
   };
 
   struct Line : public AttachChildren<Point>
@@ -31,4 +43,4 @@ namespace fc::rM
   struct Page : public AttachChildren<Layer>
   {
   };
-} // namespace fc::rM
+}

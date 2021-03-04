@@ -7,7 +7,7 @@ namespace fc::rM
   template <typename T>
   inline void printChildren(std::ostream &OS, const T &Obj)
   {
-    std::for_each(Obj.Children.begin(), Obj.Children.end(), [&OS](auto Child) { OS << Child; });
+    std::for_each(Obj.begin(), Obj.end(), [&OS](auto Child) { OS << Child; });
   }
   inline std::ostream &operator<<(std::ostream &OS, const Point &Obj)
   {
@@ -32,4 +32,4 @@ namespace fc::rM
     printChildren(OS, Obj);
     return OS;
   }
-} // namespace fc::rM
+}

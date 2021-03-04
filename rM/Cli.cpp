@@ -14,14 +14,7 @@ int main(int argc, char *argv[])
   }
   std::ifstream Stream(argv[1], std::ios::binary);
   util::assert_msg(Stream.is_open(), "Unable to open input file");
-
-  // Get the header out of the way
-  constexpr char ExpectedHdr[] = "reMarkable .lines file, version=5          ";
-  constexpr size_t Sz = sizeof(ExpectedHdr);
-  char ActualHdr[Sz - 1]; // excluding nul terminator
-  Stream.read(static_cast<char *>(ActualHdr), Sz - 1);
-  util::assert_msg(!strncmp(ActualHdr, ExpectedHdr, Sz - 1), "Header mismatched; please use a valid .rM v5 file");
-
+  util::check_rM_hdr(Stream);
   std::cout << Parser{Stream} << std::endl;
   util::assert_msg(Stream.get() == -1, "End of file marker was not found");
   util::assert_msg(Stream.eof(), "Some bytes were found at the end of the stream");

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "SVG/Printer.hpp"
+#include "SVG/Writer.hpp"
 
 using namespace fc::svg;
 

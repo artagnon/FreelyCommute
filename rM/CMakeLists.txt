@@ -1,4 +1,2 @@
-include_directories(include)
-
 add_executable("fc-rM"
   Cli.cpp)

@@ -35,9 +35,9 @@ namespace fc::rM
 
       for (i32 j = 0; j < E.NChildren; ++j)
       {
-        E.Children.push_back(miniParser<TyR>());
+        E.push_back(miniParser<TyR>());
         if constexpr (i + 1 < sizeof...(Ts))
-          recurseFillChildren<i + 1, Ts...>(E.Children.back());
+          recurseFillChildren<i + 1, Ts...>(E.back());
       }
     };
 

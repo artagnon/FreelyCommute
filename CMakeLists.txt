@@ -10,3 +10,4 @@ set(CMAKE_BUILD_TYPE Debug)
 
 add_subdirectory(rM)
 add_subdirectory(svg)
+add_subdirectory(UI)
