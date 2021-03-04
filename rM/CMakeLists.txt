@@ -1,2 +1,10 @@
+find_package(CURL 7.64.1 REQUIRED)
+include_directories(${CURL_INCLUDE_DIRS})
+
 add_executable("fc-rM"
-  Cli.cpp)
+  File.cpp)
+
+add_executable("fc-rM-cloud"
+  Cloud.cpp)
+
+target_link_libraries("fc-rM-cloud" ${CURL_LIBRARIES})
