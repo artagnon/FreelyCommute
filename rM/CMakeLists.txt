@@ -4,6 +4,12 @@ include_directories(${CURL_INCLUDE_DIRS})
 add_executable("fc-rM"
   File.cpp)
 
+add_executable("fc-rM-test"
+  Test.cpp)
+
+add_test(NAME ".rM v5 testsuite"
+  COMMAND "fc-rM-test")
+
 add_executable("fc-rM-cloud"
   Cloud.cpp)
 

@@ -9,6 +9,8 @@ include_directories(include)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -fdiagnostics-color=always")
 set(CMAKE_BUILD_TYPE Debug)
 
+enable_testing()
+
 add_subdirectory(rM)
 add_subdirectory(svg)
 add_subdirectory(UI)
