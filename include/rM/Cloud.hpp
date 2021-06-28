@@ -20,10 +20,10 @@ namespace fc::rM
 
     int post(std::string Url, StrMap M)
     {
-      const std::string JPost = std::accumulate(M.begin(), M.end(), std::string{},
-                                                [](const std::string &s, const std::pair<const std::string, std::string> &p) {
-                                                  return s + (s.empty() ? std::string() : "&") + p.first;
-                                                });
+      const auto JPost = std::accumulate(M.begin(), M.end(), std::string{},
+                                         [](const std::string &s, const std::pair<const std::string, std::string> &p) {
+                                           return s + (s.empty() ? std::string() : "&") + p.first;
+                                         });
       return curl_post(curl, Url.c_str(), JPost.c_str());
     }
   };
