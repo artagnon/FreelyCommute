@@ -21,11 +21,11 @@ class Parser {
   };
 
   template <size_t i, typename... Ts, typename CurTy>
-  void recurseFillChildren(CurTy &E) {
-    using PackTy = std::variant<Ts...>;
-    using TyL = std::variant_alternative_t<i - 1, PackTy>;
-    static_assert(std::is_same_v<CurTy, TyL>);
-    using TyR = std::variant_alternative_t<i, PackTy>;
+  void recurseFillChildren(CurTy &E) const
+    requires std::is_same_v<
+        CurTy, std::variant_alternative_t<i - 1, std::variant<Ts...>>>
+  {
+    using TyR = std::variant_alternative_t<i, std::variant<Ts...>>;
 
     for (i32 j = 0; j < E.NChildren; ++j) {
       E.push_back(miniParser<TyR>());
@@ -39,5 +39,5 @@ public:
     recurseFillChildren<1, Page, Layer, Line, Point>(Root);
   }
   inline operator Page() const { return Root; }
-};
+}; // namespace fc::rM
 } // namespace fc::rM

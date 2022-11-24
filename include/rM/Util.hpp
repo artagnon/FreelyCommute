@@ -3,8 +3,10 @@
 #include <iostream>
 
 namespace fc::rM::util {
-template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-constexpr void assert_eq(T Expected, T Actual) {
+template <typename T>
+constexpr void assert_eq(T Expected, T Actual)
+  requires std::is_integral_v<T>
+{
   if (Actual != Expected) {
     std::cout << "Expected: " << std::hex << std::showbase << +Expected
               << std::endl;
