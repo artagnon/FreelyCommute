@@ -5,10 +5,8 @@
 
 using namespace fc::rM;
 
-int main(int argc, char *argv[])
-{
-  if (argc < 2)
-  {
+int main(int argc, char *argv[]) {
+  if (argc < 2) {
     std::cout << "Usage: " << argv[0] << " <.rM file>" << std::endl;
     return EXIT_FAILURE;
   }
