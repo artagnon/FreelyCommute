@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <string_view>
 
 namespace fc::rM::util {
 template <typename T>
@@ -16,7 +17,7 @@ constexpr void assert_eq(T Expected, T Actual)
   }
 }
 
-constexpr void assert_msg(bool Condition, const char Msg[]) {
+constexpr void assert_msg(bool Condition, std::string_view Msg) {
   if (!Condition) {
     std::cout << Msg << std::endl;
     std::abort();
