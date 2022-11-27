@@ -1,5 +1,2 @@
 build/
-target/
-.vscode/
-__latex*
 .DS_Store
