@@ -1,6 +1,6 @@
 #include <ostream>
 
-#include "Structures.hpp"
+#include "rM/Structures.hpp"
 
 namespace fc::rM {
 template <typename T>

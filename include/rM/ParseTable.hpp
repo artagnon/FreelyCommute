@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Structures.hpp"
-#include "Util.hpp"
+#include "rM/Structures.hpp"
+#include "rM/Util.hpp"
 
 namespace fc::rM {
 template <typename Record> class TableEntry {

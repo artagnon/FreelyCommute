@@ -3,7 +3,7 @@
 #include <fstream>
 #include <variant>
 
-#include "ParseTable.hpp"
+#include "rM/ParseTable.hpp"
 
 namespace fc::rM {
 class Parser {
