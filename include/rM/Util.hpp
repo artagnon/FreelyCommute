@@ -1,5 +1,6 @@
 #pragma once
 
+#include "termcolor/termcolor.hpp"
 #include <iostream>
 #include <string_view>
 
@@ -19,7 +20,8 @@ constexpr void assert_eq(T Expected, T Actual)
 
 constexpr void assert_msg(bool Condition, std::string_view Msg) {
   if (!Condition) {
-    std::cout << Msg << std::endl;
+    std::cerr << "[" << termcolor::red << "ERR" << termcolor::reset << "]"
+              << Msg << std::endl;
     std::abort();
   }
 }
